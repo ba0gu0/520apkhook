@@ -42,6 +42,7 @@
 
 ## 使用
 
+> 使用`Move to iOS_v3.2.0_apkfab.com.apk`测试可以使用。
 
 
 1. 使用Linux或者macos主机, 安装python3, openjdk8, metasploit-framework.
