@@ -50,6 +50,8 @@
 
 ```
 
+![注入App](./images/520ApkHook.svg)
+
 3. 使用msfconsole加载handler.rc进行服务端监听
 
 ```sh
@@ -59,25 +61,11 @@
 
 ```
 
-7. 将生成的apk文件在安卓手机进行安装, 即可完成对目标的控制
+![注入App](./images/StartMsf.svg)
 
+4. 将生成的apk文件在安卓手机进行安装, 即可完成对目标的控制
 
-8. 成功后, 可以在msf中进行远程控制
+![安装App](./images/InstallApp.webp)
 
+5. 成功后, 可以在msf中进行远程控制
 
-
-## 不同手机安全管家对app安装时检测结果
-
-
-
-* 华为
-
-![huawei](images/huawei.jpg)
-
-* 小米
-
-![mi](images/mi.png)
-
-* VIVO
-
-![oppo](images/vivo.jpg)
