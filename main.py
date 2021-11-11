@@ -202,7 +202,7 @@ def InjectMsf2Apk():
             if i > 0:
                 Print.PrintSuccess(f'你已输入正确的smali文件`{InjectAppLauncherActivitSmaliPath}`, 程序继续...')
             break
-        if SmaliPath == 'n' or SmaliPath == 'N' or SmaliPath == '':
+        if SmaliPath == 'n' or SmaliPath == 'N':
             Print.PrintError(f'你已选择退出程序...')
             ExitScript()
         if os.path.exists(SmaliPath) :
