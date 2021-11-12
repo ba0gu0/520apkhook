@@ -13,7 +13,7 @@ class InjectMsf2App:
     def __init__(self, options):
         pass
 
-    def GetAppLauncherActivityFile(self, **kwargs):
+    def GetInjectAppLauncherActivit(self, **kwargs):
         AndroidManifestFile = self.__ReslovePath(kwargs['androidmanifestfile'])
         with open(AndroidManifestFile, 'r') as file:
             DomXml = parse(file)
@@ -38,7 +38,11 @@ class InjectMsf2App:
         else:
             # print(f"[!] 获取匹配到的首组件名称, 但是不符合规则, 请确认! 获取到的组件为: {LauncherActivity}")
             return False
+        return LauncherActivity
 
+    def GetInjectAppLauncherActivitFile(self, **kwargs):
+
+        LauncherActivity = self.GetInjectAppLauncherActivit(**kwargs)
         AppDexPath = self.__ReslovePath(kwargs['appdexpath'])
         LauncherActivityReplace = LauncherActivity.replace('.', os.path.sep)
 

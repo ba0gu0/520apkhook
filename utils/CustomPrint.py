@@ -35,15 +35,15 @@ class CustomPrint():
 
     def PrintInfo(self, text):
         rainbow = RainbowHighlighter(self.CustomColor['info'])
-        self.Console.print(rainbow(f'[*] {text}'))
+        self.Console.print(rainbow(f'[*] {text}\n'))
 
     def PrintError(self, text):
         rainbow = RainbowHighlighter(self.CustomColor['error'])
-        self.Console.print(rainbow(f'[!] {text}'))
+        self.Console.print(rainbow(f'[!] {text}\n'))
 
     def PrintSuccess(self, text):
         rainbow = RainbowHighlighter(self.CustomColor['success'])
-        self.Console.print(rainbow(f'[+] {text}'))
+        self.Console.print(rainbow(f'[+] {text}\n'))
 
     def PrintRule(self, text, style = 'green'):
         self.Console.rule(text, style = style)

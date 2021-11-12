@@ -35,7 +35,7 @@ def CopyTree(src, dst):
         if os.path.isdir(s):
             isRecursive = not isAFlatDir(s)
             if isRecursive:
-                copyTree(s, d)
+                CopyTree(s, d)
             else:
                 forceMergeFlatDir(s, d)
 

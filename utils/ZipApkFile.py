@@ -20,7 +20,7 @@ class ZipApkFile():
         :return:
         '''
         self.zip.extractall(self.ZipExtractPath)
-        sleep(2)
+        sleep(0)
         self.zip.close()
 
     def ZipApk(self, **kwargs):
@@ -38,7 +38,7 @@ class ZipApkFile():
                 zippath = ''
             path = os.path.join(self.ZipCompressPath, path)
             self.__addToZip(path, zippath)
-        sleep(2)
+        sleep(0)
         self.zip.close()
 
     def __addToZip(self, path, zippath):

@@ -16,6 +16,9 @@ class JarCommand:
         else:
             self.JavaCommand = 'java'
 
+    def __ExecCommand(self, Command):
+        return subprocess.Popen(Command, stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT).communicate()
+
     def Dex2Smail(self, **kwargs):
         '''
         :param dexfilepath: test/dexfile/msf_classes.dex test/dexfile/app_classes.dex
@@ -26,9 +29,9 @@ class JarCommand:
         JavaCommand = self.JavaCommand
         SmaliDirPath = self.__ReslovePath(kwargs['smalidirpath'])
         DexFile = self.__ReslovePath(kwargs['dexfilepath'])
-        sleep(2)
+        sleep(0)
         # print(f'DEBUG INFO: {JavaCommand} -jar {JarBakSmaliFile} d {DexFile} -o {SmailDirPath}')
-        return subprocess.Popen(f'{JavaCommand} -jar {JarBakSmaliFile} d {DexFile} -o {SmaliDirPath}', stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT).communicate()
+        return self.__ExecCommand(f'{JavaCommand} -jar {JarBakSmaliFile} d {DexFile} -o {SmaliDirPath}')
 
     def Smail2Dex(self, **kwargs):
 
@@ -42,10 +45,10 @@ class JarCommand:
         JavaCommand = self.JavaCommand
         SmaliDirPath = self.__ReslovePath(kwargs['smalidirpath'])
         DexFilePath = self.__ReslovePath(kwargs['dexfilepath'])
-        sleep(2)
+        sleep(0)
 
         # print(f'DEBUG INFO: {JavaCommand} -jar {JarSmaliFile} a {SmaliDirPath} -o {DexFilePath}')
-        return subprocess.Popen(f'{JavaCommand} -jar {JarSmaliFile} a {SmaliDirPath} -o {DexFilePath}', stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT).communicate()
+        return self.__ExecCommand(f'{JavaCommand} -jar {JarSmaliFile} a {SmaliDirPath} -o {DexFilePath}')
 
     def ApkSigner(self, **kwargs):
         '''
@@ -58,9 +61,9 @@ class JarCommand:
         KeystoreFile = self.__ReslovePath(self.KeystoreFile)
         KeystorePass = self.KeystorePass
         ApkFile = self.__ReslovePath(kwargs['apkfilepath'])
-        sleep(3)
+        sleep(2)
         # print(f'DEBUG INFO: {JavaCommand} -jar {JarApkSignerFile} sign --ks {KeystoreFile} --ks-pass pass:{KeystorePass} {ApkFile}')
-        return subprocess.Popen(f'{JavaCommand} -jar {JarApkSignerFile} sign --ks {KeystoreFile} --ks-pass pass:{KeystorePass} {ApkFile}', stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT).communicate()
+        return self.__ExecCommand(f'{JavaCommand} -jar {JarApkSignerFile} sign --ks {KeystoreFile} --ks-pass pass:{KeystorePass} {ApkFile}')
 
     def ManifestEditor(self, **kwargs):
         '''
@@ -75,9 +78,9 @@ class JarCommand:
         JavaCommand = self.JavaCommand
         AndroidManifestFile = self.__ReslovePath(kwargs['androidmanifestfile'])
         NewAndroidManifestFile = self.__ReslovePath(kwargs['newandroidmanifestfile'])
-        sleep(3)
+        sleep(2)
         # print(f'DEBUG INFO: {JavaCommand} -jar {JarManifestEditorFile} {AndroidManifestFile} -f -o {NewAndroidManifestFile} {OptionCommand}')
-        return subprocess.Popen(f'{JavaCommand} -jar {JarManifestEditorFile} {AndroidManifestFile} -f -o {NewAndroidManifestFile} {OptionCommand}', stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT).communicate()
+        return self.__ExecCommand(f'{JavaCommand} -jar {JarManifestEditorFile} {AndroidManifestFile} -f -o {NewAndroidManifestFile} {OptionCommand}')
 
     def Xml2Axml(self, **kwargs):
         '''
@@ -90,9 +93,9 @@ class JarCommand:
         JavaCommand = self.JavaCommand
         AndroidManifestFile = self.__ReslovePath(kwargs['androidmanifestfile'])
         AndroidManifestDecodeFile = self.__ReslovePath(kwargs['androidmanifestdecodefile'])
-        sleep(3)
+        sleep(2)
         # print(f'DEBUG INFO: {JavaCommand} -jar {JarXml2AxmlFile} d {AndroidManifestFile} {AndroidManifestDecodeFile}')
-        return subprocess.Popen(f'{JavaCommand} -jar {JarXml2AxmlFile} d {AndroidManifestFile} {AndroidManifestDecodeFile}', stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT).communicate()
+        return self.__ExecCommand(f'{JavaCommand} -jar {JarXml2AxmlFile} d {AndroidManifestFile} {AndroidManifestDecodeFile}')
 
     def __ReslovePath(self, *path):
         return os.path.abspath(os.path.join(*path))
@@ -122,7 +125,7 @@ if __name__ == '__main__':
     Jar.Smail2Dex(smalidirpath=r'../WorkDir/dexfile/app/classes', dexfilepath=r'../WorkDir/dexfile/app/classes.dex')
     Jar.Smail2Dex(smalidirpath=r'../WorkDir/dexfile/app/classes2', dexfilepath=r'../WorkDir/dexfile/app/classes2.dex')
 
-    Jar.ApkSigner(apkfilepath=r'../WorkDir/apkfile/FinishApp.apk')
+    Jar.ApkSigner(apkfilepath=r'../WorkDir/AllFinish.apk')
 
     OptionCommand = '-an com.sakuqi.steady.SteadyApplication -md app_name:com.halo.assistant.HaloApp '
 
