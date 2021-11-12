@@ -206,7 +206,7 @@ def InjectMsf2Apk():
             SmaliPath = Print.PrintInput(f'Input').strip()
             print()
             i += 1
-        elif ChangeCode == False and i > 1:
+        elif ChangeCode == False and i > 0:
             SmaliPath = Print.PrintInput(f'Input').strip()
         else:
             if i > 0:
