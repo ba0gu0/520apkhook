@@ -116,7 +116,7 @@ class InjectMsf2App:
             pass
 
     def AddSleep(self):
-        time.sleep(3)
+        time.sleep(0)
 
     def __RandomStr(self):
         return ''.join(random.sample('zyxwvutsrqponmlkjihgfedcba', 10))

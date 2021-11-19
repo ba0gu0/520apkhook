@@ -48,7 +48,7 @@ class CreateMsfDex:
             TransportData = self.__GenerateHttpConfig(PayloadPlatform)
 
         self.__GenerateDexFile(TransportData, self.MsfBaseDexFile, self.MsfBuildDexFile)
-        sleep(2)
+        sleep(0)
 
     def __GenerateDexFile(self, TransportData, BaseDexFilePath, BuildDexFilePath):
         '''

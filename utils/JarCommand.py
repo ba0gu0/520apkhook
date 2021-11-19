@@ -61,7 +61,7 @@ class JarCommand:
         KeystoreFile = self.__ReslovePath(self.KeystoreFile)
         KeystorePass = self.KeystorePass
         ApkFile = self.__ReslovePath(kwargs['apkfilepath'])
-        sleep(2)
+        sleep(0)
         # print(f'DEBUG INFO: {JavaCommand} -jar {JarApkSignerFile} sign --ks {KeystoreFile} --ks-pass pass:{KeystorePass} {ApkFile}')
         return self.__ExecCommand(f'{JavaCommand} -jar {JarApkSignerFile} sign --ks {KeystoreFile} --ks-pass pass:{KeystorePass} {ApkFile}')
 
@@ -78,7 +78,7 @@ class JarCommand:
         JavaCommand = self.JavaCommand
         AndroidManifestFile = self.__ReslovePath(kwargs['androidmanifestfile'])
         NewAndroidManifestFile = self.__ReslovePath(kwargs['newandroidmanifestfile'])
-        sleep(2)
+        sleep(0)
         # print(f'DEBUG INFO: {JavaCommand} -jar {JarManifestEditorFile} {AndroidManifestFile} -f -o {NewAndroidManifestFile} {OptionCommand}')
         return self.__ExecCommand(f'{JavaCommand} -jar {JarManifestEditorFile} {AndroidManifestFile} -f -o {NewAndroidManifestFile} {OptionCommand}')
 
@@ -93,7 +93,7 @@ class JarCommand:
         JavaCommand = self.JavaCommand
         AndroidManifestFile = self.__ReslovePath(kwargs['androidmanifestfile'])
         AndroidManifestDecodeFile = self.__ReslovePath(kwargs['androidmanifestdecodefile'])
-        sleep(2)
+        sleep(0)
         # print(f'DEBUG INFO: {JavaCommand} -jar {JarXml2AxmlFile} d {AndroidManifestFile} {AndroidManifestDecodeFile}')
         return self.__ExecCommand(f'{JavaCommand} -jar {JarXml2AxmlFile} d {AndroidManifestFile} {AndroidManifestDecodeFile}')
 

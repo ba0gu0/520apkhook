@@ -65,7 +65,7 @@ def ReslovePath(*args):
     return os.path.abspath(os.path.join(*args))
 
 def AddSleep():
-    time.sleep(2)
+    time.sleep(0)
 
 def ExitScript():
     print('')
@@ -85,7 +85,12 @@ def CheckEnv():
 
 def CheckJavaVersion():
     (out, err)= subprocess.Popen(f'{JavaCommand} -version', stdout=subprocess.PIPE, shell=True, stderr=subprocess.STDOUT).communicate()
-    if 'version' not in out.decode():
+    if sys.platform == 'win32':
+        out = out.decode('gbk')
+    else:
+        out = out.decode('utf-8')
+
+    if 'version' not in out:
         Print.PrintError(f'系统中未安装java环境，或者配置了错误的java路径`{JavaCommand}`,请修改`utils/config.py`文件中JavaPath对应值...')
         ExitScript()
 
@@ -381,6 +386,7 @@ def CreateMsfHandler():
     with open(MsfHandler,"w") as handler:
         handler.write("use exploit/multi/handler\n")
         handler.write(f"set payload {MsfPayloadType}\n")
+        handler.write(f'set AutoLoadStdapi true\n')
         handler.write("set LHOST 0.0.0.0\n")
         handler.write(f"set LPORT {MsfLPort}\n")
         handler.write("set exitonsession false\n")
@@ -534,6 +540,8 @@ if __name__ == '__main__':
     MsfHandler = ReslovePath(OPTIONS['MsfHandler'])
 
     JavaCommand = OPTIONS['JavaPath']
+    if os.path.exists(JavaCommand):
+        JavaCommand = 'java'
 
     Print.PrintStatus(
         f'正在检查环境信息...', 

@@ -33,7 +33,7 @@ class EncryptFile:
         with open(NewDexFile, 'wb') as file:
             file.write(EncryptFileData)
 
-        sleep(1)
+        sleep(0)
 
     def aes_encrypt(self, plaintext):
         """
