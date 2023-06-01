@@ -1,0 +1,21 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "520ApkBox"
+include ':app'
+include ':BCore:xposed'
+include ':BCore:black-fake'
+include ':BCore:black-hook'
+include ':android-mirror'
+include ':BCore'
