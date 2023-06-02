@@ -97,3 +97,9 @@ java -jar a520ApkHook-1.0-jar-with-dependencies.jar  ~/Downloads/京东.apk ~/Do
 * 本项目仅用于安全研究, 禁止利用脚本进行攻击, 使用本脚本产生的一切问题和本人无关.
 
 * 由于此软件是基于安卓虚拟化来实现的，虚拟化软件对于不同版本的系统会出现BUG，可以自行修改520ApkBox项目源码 (欢迎大佬提交pull) .
+
+
+
+## Start 曲线
+
+[![Start 曲线](https://starchart.cc/ba0gu0/520apkhook.svg)](https://starchart.cc/ba0gu0/520apkhook)
