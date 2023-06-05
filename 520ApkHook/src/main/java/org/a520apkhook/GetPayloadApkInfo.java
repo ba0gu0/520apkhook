@@ -81,7 +81,11 @@ public class GetPayloadApkInfo {
             if (receiverElement.attribute("name").getStringValue().startsWith(".")){
                 receiverElement.addAttribute("name", Config.payloadApkPackageName + receiverElement.attribute("name").getStringValue());
             }
-            if (receiverElement.attribute("android:exported") == null){
+
+            QName exportedQName = QName.get("exported", "http://schemas.android.com/apk/res/android");
+
+            if (receiverElement.attribute(exportedQName) == null){
+                LogUtils.info(TAG, "为目标receiver添加android:exported=true属性.");
                 receiverElement.addAttribute("android:exported", "true");
             }
 
