@@ -3,10 +3,11 @@ package black.android.content;
 import android.content.Intent;
 import android.os.Bundle;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BMethod;
 
-public class IIntentReceiver {
-    public static final Reflector REF = Reflector.on("android.content.IIntentReceiver");
-
-    public static Reflector.MethodWrapper<Void> performReceive = REF.method("performReceive", Intent.class, int.class, String.class, Bundle.class, boolean.class, boolean.class, int.class);
+@BClassName("android.content.IIntentReceiver")
+public interface IIntentReceiver {
+    @BMethod
+    void performReceive(Intent intent, int resultCode, String data, Bundle extras, boolean ordered, boolean sticky, int sendingUser);
 }

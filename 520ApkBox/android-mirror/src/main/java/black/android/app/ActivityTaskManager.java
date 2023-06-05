@@ -1,9 +1,15 @@
 package black.android.app;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticField;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class ActivityTaskManager {
-    public static final Reflector REF = Reflector.on("android.app.ActivityTaskManager");
+@BClassName("android.app.ActivityTaskManager")
+public interface ActivityTaskManager {
 
-    public static Reflector.FieldWrapper<Object> IActivityTaskManagerSingleton = REF.field("IActivityTaskManagerSingleton");
+    @BStaticMethod
+    Object getService();
+
+    @BStaticField
+    Object IActivityTaskManagerSingleton();
 }

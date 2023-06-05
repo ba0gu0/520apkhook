@@ -1,17 +1,36 @@
 package black.android.content.pm;
 
-import android.content.pm.PackageParser;
 import android.content.pm.PackageParser.Package;
 
 import java.io.File;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BConstructor;
+import top.niunaijun.blackreflection.annotation.BMethod;
 
-public class PackageParserLollipop {
-    public static final Reflector REF = Reflector.on("android.content.pm.PackageParser");
+@BClassName("android.content.pm.PackageParser")
+public interface PackageParserLollipop {
+    @BConstructor
+    android.content.pm.PackageParser _new();
 
-    public static Reflector.ConstructorWrapper<PackageParser> _new = REF.constructor();
+//    @BStaticMethod
+//    ActivityInfo generateActivityInfo(PackageParser.Activity service, int flag, PackageUserState state, int userId);
+//
+//    @BStaticMethod
+//    ApplicationInfo generateApplicationInfo(Package p, int flags, PackageUserState state);
+//
+//    @BStaticMethod
+//    PackageInfo generatePackageInfo(Package p, int[] ints, int int1, long long1, long );
+//
+//    @BStaticMethod
+//    ProviderInfo generateProviderInfo(PackageParser.Provider service, int flag, PackageUserState state, int userId);
+//
+//    @BStaticMethod
+//    ServiceInfo generateServiceInfo(PackageParser.Service service, int flag, PackageUserState state, int userId);
 
-    public static Reflector.MethodWrapper<Void> collectCertificates = REF.method("collectCertificates", Package.class, int.class);
-    public static Reflector.MethodWrapper<Package> parsePackage = REF.method("parsePackage", File.class, int.class);
+    @BMethod
+    void collectCertificates(Package p, int flags);
+
+    @BMethod
+    Package parsePackage(File File0, int flags);
 }

@@ -2,15 +2,22 @@ package black.android.telephony;
 
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticField;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class TelephonyManager {
-    public static final Reflector REF = Reflector.on("android.telephony.TelephonyManager");
+/**
+ * Created by BlackBox on 2022/2/26.
+ */
+@BClassName("android.telephony.TelephonyManager")
+public interface TelephonyManager {
 
-    public static Reflector.StaticMethodWrapper<Object> getSubscriberInfoService = REF.staticMethod("getSubscriberInfoService");
+    @BStaticMethod
+    Object getSubscriberInfoService();
 
-    public static Reflector.FieldWrapper<Boolean> sServiceHandleCacheEnabled = REF.field("sServiceHandleCacheEnabled");
-    public static Reflector.FieldWrapper<IInterface> sIPhoneSubInfo = REF.field("sIPhoneSubInfo");
+    @BStaticField
+    boolean sServiceHandleCacheEnabled();
 
-    public static Reflector.MethodWrapper<IInterface> getSubscriberInfo = REF.method("getSubscriberInfo");
+    @BStaticField
+    IInterface sIPhoneSubInfo();
 }

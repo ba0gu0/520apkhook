@@ -2,11 +2,14 @@ package black.android.app;
 
 import java.util.List;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BField;
 
-public class NotificationChannelGroup {
-    public static final Reflector REF = Reflector.on("android.app.NotificationChannelGroup");
+@BClassName("android.app.NotificationChannelGroup")
+public interface NotificationChannelGroup {
+    @BField
+    List<android.app.NotificationChannel> mChannels();
 
-    public static Reflector.FieldWrapper<List<android.app.NotificationChannel>> mChannels = REF.field("mChannels");
-    public static Reflector.FieldWrapper<String> mId = REF.field("mId");
+    @BField
+    String mId();
 }

@@ -2,10 +2,11 @@ package black.android.security.net.config;
 
 import android.content.Context;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class NetworkSecurityConfigProvider {
-    public static final Reflector REF = Reflector.on("android.security.net.config.NetworkSecurityConfigProvider");
-
-    public static Reflector.StaticMethodWrapper<Void> install = REF.staticMethod("install", Context.class);
+@BClassName("android.security.net.config.NetworkSecurityConfigProvider")
+public interface NetworkSecurityConfigProvider {
+    @BStaticMethod
+    void install(Context Context0);
 }

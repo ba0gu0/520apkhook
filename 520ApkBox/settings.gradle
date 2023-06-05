@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        maven { url 'https://jitpack.io' }
         google()
         mavenCentral()
         gradlePluginPortal()
@@ -8,14 +9,17 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        maven { url "https://jitpack.io" }
         google()
         mavenCentral()
     }
 }
 rootProject.name = "520ApkBox"
 include ':app'
-include ':BCore:xposed'
-include ':BCore:black-fake'
-include ':BCore:black-hook'
+include ':Bcore:black-hook'
+include ':Bcore:pine-xposed'
+include ':Bcore:black-fake'
 include ':android-mirror'
-include ':BCore'
+include ':Bcore:pine-xposed-res'
+include ':Bcore'
+include ':Bcore:pine-core'

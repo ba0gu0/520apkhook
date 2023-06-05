@@ -2,10 +2,11 @@ package black.android.os;
 
 import android.os.Handler.Callback;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BField;
 
-public class Handler {
-    public static final Reflector REF = Reflector.on("android.os.Handler");
-
-    public static Reflector.FieldWrapper<Callback> mCallback = REF.field("mCallback");
+@BClassName("android.os.Handler")
+public interface Handler {
+    @BField
+    Callback mCallback();
 }

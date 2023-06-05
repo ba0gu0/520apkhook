@@ -1,5 +1,10 @@
+//
+// Created by Milk on 2021/5/5.
+//
+
 #ifndef BLACKBOX_VMCLASSLOADERHOOK_H
 #define BLACKBOX_VMCLASSLOADERHOOK_H
+
 
 #include "BaseHook.h"
 #include <jni.h>
@@ -10,4 +15,5 @@ public:
     static void init(JNIEnv *env);
 };
 
-#endif // BLACKBOX_VMCLASSLOADERHOOK_H
+
+#endif //BLACKBOX_VMCLASSLOADERHOOK_H

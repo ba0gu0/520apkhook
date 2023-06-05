@@ -3,11 +3,14 @@ package black.android.media.session;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class ISessionManager {
-    public static class Stub {
-        public static final Reflector REF = Reflector.on("android.media.session.ISessionManager$Stub");
-        public static Reflector.StaticMethodWrapper<IInterface> asInterface = REF.staticMethod("asInterface", IBinder.class);
+@BClassName("android.media.session.ISessionManager")
+public interface ISessionManager {
+    @BClassName("android.media.session.ISessionManager$Stub")
+    interface Stub {
+        @BStaticMethod
+        IInterface asInterface(IBinder IBinder0);
     }
 }

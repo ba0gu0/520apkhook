@@ -2,42 +2,45 @@ package black.android.providers;
 
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BField;
+import top.niunaijun.blackreflection.annotation.BStaticField;
 
-public class Settings {
-    public static class System {
-        public static final Reflector REF = Reflector.on("android.provider.Settings$System");
-
-        public static Reflector.FieldWrapper<Object> sNameValueCache = REF.field("sNameValueCache");
+@BClassName("android.provider.Settings")
+public interface Settings {
+    @BClassName("android.provider.Settings$System")
+    interface System {
+        @BStaticField
+        Object sNameValueCache();
     }
 
-    public static class Secure {
-        public static final Reflector REF = Reflector.on("android.provider.Settings$Secure");
-
-        public static Reflector.FieldWrapper<Object> sNameValueCache = REF.field("sNameValueCache");
+    @BClassName("android.provider.Settings$Secure")
+    interface Secure {
+        @BStaticField
+        Object sNameValueCache();
     }
 
-    public static class ContentProviderHolder {
-        public static final Reflector REF = Reflector.on("android.provider.Settings$ContentProviderHolder");
-
-        public static Reflector.FieldWrapper<IInterface> mContentProvider = REF.field("mContentProvider");
+    @BClassName("android.provider.Settings$ContentProviderHolder")
+    interface ContentProviderHolder {
+        @BField
+        IInterface mContentProvider();
     }
 
-    public static class NameValueCacheOreo {
-        public static final Reflector REF = Reflector.on("android.provider.Settings$NameValueCache");
-
-        public static Reflector.FieldWrapper<Object> mProviderHolder = REF.field("mProviderHolder");
+    @BClassName("android.provider.Settings$NameValueCache")
+    interface NameValueCacheOreo {
+        @BField
+        Object mProviderHolder();
     }
 
-    public static class NameValueCache {
-        public static final Reflector REF = Reflector.on("android.provider.Settings$NameValueCache");
-
-        public static Reflector.FieldWrapper<Object> mContentProvider = REF.field("mContentProvider");
+    @BClassName("android.provider.Settings$NameValueCache")
+    interface NameValueCache {
+        @BField
+        Object mContentProvider();
     }
 
-    public static class Global {
-        public static final Reflector REF = Reflector.on("android.provider.Settings$Global");
-
-        public static Reflector.FieldWrapper<Object> sNameValueCache = REF.field("sNameValueCache");
+    @BClassName("android.provider.Settings$Global")
+    interface Global {
+        @BStaticField
+        Object sNameValueCache();
     }
 }

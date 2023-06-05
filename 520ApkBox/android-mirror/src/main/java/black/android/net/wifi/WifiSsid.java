@@ -1,9 +1,11 @@
 package black.android.net.wifi;
 
-import black.Reflector;
 
-public class WifiSsid {
-    public static final Reflector REF = Reflector.on("android.net.wifi.WifiSsid");
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-    public static Reflector.StaticMethodWrapper<Object> createFromAsciiEncoded = REF.staticMethod("createFromAsciiEncoded", String.class);
+@BClassName("android.net.wifi.WifiSsid")
+public interface WifiSsid {
+    @BStaticMethod
+    Object createFromAsciiEncoded(String asciiEncoded);
 }

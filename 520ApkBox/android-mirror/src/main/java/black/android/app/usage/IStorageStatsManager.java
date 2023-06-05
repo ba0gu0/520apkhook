@@ -3,11 +3,14 @@ package black.android.app.usage;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class IStorageStatsManager {
-    public static class Stub {
-        public static final Reflector REF = Reflector.on("android.app.usage.IStorageStatsManager$Stub");
-        public static Reflector.StaticMethodWrapper<IInterface> asInterface = REF.staticMethod("asInterface", IBinder.class);
+@BClassName("android.app.usage.IStorageStatsManager")
+public interface IStorageStatsManager {
+    @BClassName("android.app.usage.IStorageStatsManager$Stub")
+    interface Stub {
+        @BStaticMethod
+        IInterface asInterface(IBinder IBinder0);
     }
 }

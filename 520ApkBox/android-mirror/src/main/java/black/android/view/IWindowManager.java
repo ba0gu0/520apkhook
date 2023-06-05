@@ -3,11 +3,14 @@ package black.android.view;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class IWindowManager {
-    public static class Stub {
-        public static final Reflector REF = Reflector.on("android.view.IWindowManager$Stub");
-        public static Reflector.StaticMethodWrapper<IInterface> asInterface = REF.staticMethod("asInterface", IBinder.class);
+@BClassName("android.view.IWindowManager")
+public interface IWindowManager {
+    @BClassName("android.view.IWindowManager$Stub")
+    interface Stub {
+        @BStaticMethod
+        IInterface asInterface(IBinder IBinder0);
     }
 }

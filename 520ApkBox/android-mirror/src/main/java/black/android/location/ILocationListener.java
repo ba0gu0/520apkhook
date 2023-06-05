@@ -4,15 +4,18 @@ import android.location.Location;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BMethod;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class ILocationListener {
-    public static final Reflector REF = Reflector.on("android.location.ILocationListener");
+@BClassName("android.location.ILocationListener")
+public interface ILocationListener {
+    @BMethod
+    void onLocationChanged(Location Location0);
 
-    public static Reflector.MethodWrapper<Void> onLocationChanged = REF.method("onLocationChanged", Location.class);
-
-    public static class Stub {
-        public static final Reflector REF = Reflector.on("android.location.ILocationListener$Stub");
-        public static Reflector.StaticMethodWrapper<IInterface> asInterface = REF.staticMethod("asInterface", IBinder.class);
+    @BClassName("android.location.ILocationListener$Stub")
+    interface Stub {
+        @BStaticMethod
+        IInterface asInterface(IBinder IBinder0);
     }
 }

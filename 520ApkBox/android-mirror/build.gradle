@@ -3,14 +3,13 @@ plugins {
 }
 
 android {
-    compileSdk rootProject.ext.compileSdk
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
-    aidlPackagedList "android/app/IServiceConnection.aidl"
-    aidlPackagedList "android/accounts/IAccountManagerResponse.aidl"
+    aidlPackageWhiteList "android/app/IServiceConnection.aidl"
+    aidlPackageWhiteList "android/accounts/IAccountManagerResponse.aidl"
 
     defaultConfig {
-        minSdk rootProject.ext.minSdk
-
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
     }
@@ -21,7 +20,6 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -29,6 +27,8 @@ android {
 }
 
 dependencies {
-    implementation project(':BCore:black-fake')
-    implementation "org.lsposed.hiddenapibypass:hiddenapibypass:$rootProject.ext.hiddenApiBypass"
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation project(':Bcore:black-fake')
+    implementation "com.github.CodingGay.BlackReflection:core:$rootProject.ext.blackReflection"
+    annotationProcessor "com.github.CodingGay.BlackReflection:compiler:$rootProject.ext.blackReflection"
 }

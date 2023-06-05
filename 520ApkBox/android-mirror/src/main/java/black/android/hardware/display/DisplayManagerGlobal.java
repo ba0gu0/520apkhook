@@ -2,12 +2,15 @@ package black.android.hardware.display;
 
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BField;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class DisplayManagerGlobal {
-    public static final Reflector REF = Reflector.on("android.hardware.display.DisplayManagerGlobal");
+@BClassName("android.hardware.display.DisplayManagerGlobal")
+public interface DisplayManagerGlobal {
+    @BField
+    IInterface mDm();
 
-    public static Reflector.FieldWrapper<IInterface> mDm = REF.field("mDm");
-
-    public static Reflector.StaticMethodWrapper<Object> getInstance = REF.staticMethod("getInstance");
+    @BStaticMethod
+    Object getInstance();
 }

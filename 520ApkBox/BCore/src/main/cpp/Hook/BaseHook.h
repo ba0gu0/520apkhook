@@ -1,5 +1,9 @@
-#ifndef BLACKBOX_BASEHOOK_H
-#define BLACKBOX_BASEHOOK_H
+//
+// Created by Milk on 4/9/21.
+//
+
+#ifndef VIRTUALM_BASEHOOK_H
+#define VIRTUALM_BASEHOOK_H
 
 #include <jni.h>
 #include <Log.h>
@@ -9,4 +13,5 @@ public:
     static void init(JNIEnv *env);
 };
 
-#endif // BLACKBOX_BASEHOOK_H
+
+#endif //VIRTUALM_BASEHOOK_H

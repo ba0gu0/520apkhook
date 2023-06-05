@@ -4,15 +4,33 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.IBinder;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BField;
+import top.niunaijun.blackreflection.annotation.BMethod;
 
-public class Activity {
-    public static final Reflector REF = Reflector.on("android.app.Activity");
+@BClassName("android.app.Activity")
+public interface Activity {
+    @BField
+    ActivityInfo mActivityInfo();
 
-    public static Reflector.FieldWrapper<ActivityInfo> mActivityInfo = REF.field("mActivityInfo");
-    public static Reflector.FieldWrapper<Boolean> mFinished = REF.field("mFinished");
-    public static Reflector.FieldWrapper<android.app.Activity> mParent = REF.field("mParent");
-    public static Reflector.FieldWrapper<Integer> mResultCode = REF.field("mResultCode");
-    public static Reflector.FieldWrapper<Intent> mResultData = REF.field("mResultData");
-    public static Reflector.FieldWrapper<IBinder> mToken = REF.field("mToken");
+    @BField
+    String mEmbeddedID();
+
+    @BField
+    boolean mFinished();
+
+    @BField
+    android.app.Activity mParent();
+
+    @BField
+    int mResultCode();
+
+    @BField
+    Intent mResultData();
+
+    @BField
+    IBinder mToken();
+
+    @BMethod
+    void onActivityResult(int int0, int int1, Intent Intent2);
 }

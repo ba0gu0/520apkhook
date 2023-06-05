@@ -121,7 +121,6 @@ public class App implements Runnable
             System.exit(1);
         }
 
-
         try {
             hackApk.copyAssesResFile();
         }catch (IOException e){
@@ -162,8 +161,16 @@ public class App implements Runnable
             LogUtils.error(TAG, "读取被注入Apk文件Meta信息失败, 无法进行下一步, 程序退出! " + Config.hackApkFilePath);
             System.exit(1);
         }
+
         if (!GetSourceApkInfo.getApkIcon()){
             LogUtils.warn(TAG, "读取被注入Apk图标并保存时失败! 并不影响后续操作.");
+        }
+
+        GetSourceApkInfo.closeApkFile();
+
+        if (!GetSourceApkInfo.getApkArchName()){
+            LogUtils.warn(TAG, "读取被注入Apk Arch信息失败, 无法进行下一步, 程序退出! ");
+            System.exit(1);
         }
 
         LogUtils.info(TAG, "读取被注入Apk信息已完成. ");

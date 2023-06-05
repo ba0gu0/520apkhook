@@ -3,11 +3,14 @@ package black.android.content.pm;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class IShortcutService {
-    public static class Stub {
-        public static final Reflector REF = Reflector.on("android.content.pm.IShortcutService$Stub");
-        public static Reflector.StaticMethodWrapper<IInterface> asInterface = REF.staticMethod("asInterface", IBinder.class);
+@BClassName("android.content.pm.IShortcutService")
+public interface IShortcutService {
+    @BClassName("android.content.pm.IShortcutService$Stub")
+    interface Stub {
+        @BStaticMethod
+        IInterface asInterface(IBinder IBinder0);
     }
 }

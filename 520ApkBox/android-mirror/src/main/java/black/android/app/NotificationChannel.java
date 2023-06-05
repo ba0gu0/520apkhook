@@ -1,9 +1,11 @@
 package black.android.app;
 
-import black.Reflector;
 
-public class NotificationChannel {
-    public static final Reflector REF = Reflector.on("android.app.NotificationChannel");
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BField;
 
-    public static Reflector.FieldWrapper<String> mId = REF.field("mId");
+@BClassName("android.app.NotificationChannel")
+public interface NotificationChannel {
+    @BField
+    String mId();
 }

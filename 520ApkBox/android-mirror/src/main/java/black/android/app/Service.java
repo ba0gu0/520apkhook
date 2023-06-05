@@ -1,14 +1,19 @@
 package black.android.app;
 
+
 import android.app.ActivityThread;
 import android.app.Application;
 import android.content.Context;
 import android.os.IBinder;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BMethod;
+import top.niunaijun.blackreflection.annotation.BParamClass;
 
-public class Service {
-    public static final Reflector REF = Reflector.on("android.app.Service");
-
-    public static Reflector.MethodWrapper<Void> attach = REF.method("attach", Context.class, ActivityThread.class, String.class, IBinder.class, Application.class, Object.class);
+@BClassName("android.app.Service")
+public interface Service {
+    @BMethod
+    void attach(Context context,
+                @BParamClass(ActivityThread.class) Object thread, String className, IBinder token,
+                Application application, Object activityManager);
 }

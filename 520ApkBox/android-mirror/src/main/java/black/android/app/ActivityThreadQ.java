@@ -4,10 +4,11 @@ import android.os.IBinder;
 
 import java.util.List;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BMethod;
 
-public class ActivityThreadQ {
-    public static final Reflector REF = Reflector.on("android.app.ActivityThread");
-
-    public static Reflector.MethodWrapper<Void> handleNewIntent = REF.method("handleNewIntent", IBinder.class, List.class);
+@BClassName("android.app.ActivityThread")
+public interface ActivityThreadQ {
+    @BMethod
+    void handleNewIntent(IBinder IBinder0, List List1);
 }

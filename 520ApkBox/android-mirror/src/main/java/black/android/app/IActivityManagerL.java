@@ -3,10 +3,11 @@ package black.android.app;
 import android.content.Intent;
 import android.os.IBinder;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BMethod;
 
-public class IActivityManagerL {
-    public static final Reflector REF = Reflector.on("android.app.IActivityManager");
-
-    public static Reflector.MethodWrapper<Boolean> finishActivity = REF.method("finishActivity", IBinder.class, int.class, Intent.class, boolean.class);
+@BClassName("android.app.IActivityManager")
+public interface IActivityManagerL {
+    @BMethod
+    Boolean finishActivity(IBinder IBinder0, int int1, Intent Intent2, boolean boolean3);
 }

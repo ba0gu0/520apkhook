@@ -4,7 +4,7 @@ import android.net.NetworkInfo;
 import android.net.LinkProperties;
 
 interface IConnectivityManager {
-    NetworkInfo getActiveNetworkInfo();
+NetworkInfo getActiveNetworkInfo();
     NetworkInfo getActiveNetworkInfoForUid(int uid, boolean ignoreBlocked);
 
     NetworkInfo getNetworkInfo(int networkType);

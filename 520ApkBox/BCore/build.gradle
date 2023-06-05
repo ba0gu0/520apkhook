@@ -1,34 +1,28 @@
-plugins {
-    id 'com.android.library'
-    id 'org.jetbrains.kotlin.android'
-}
+apply plugin: 'com.android.library'
 
 android {
-    compileSdk rootProject.ext.compileSdk
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
-        minSdk rootProject.ext.minSdk
-        targetSdk rootProject.ext.targetSdk
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
 
-        consumerProguardFiles 'consumer-rules.pro'
-        externalNativeBuild {
-            cmake {
-                abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
-            }
+        consumerProguardFiles "consumer-rules.pro"
+        ndk {
+            // 设置支持的SO库架构
+            abiFilters 'armeabi-v7a', 'arm64-v8a'
         }
     }
-    
+
     buildTypes {
         release {
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
-    buildFeatures {
-        prefab true
-    }
-
     externalNativeBuild {
         cmake {
             path file('./src/main/cpp/CMakeLists.txt')
@@ -39,21 +33,24 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-
+    aaptOptions {
+        cruncherEnabled = false
+        useNewCruncher = false
+    }
     testOptions {
         unitTests.returnDefaultValues = true
     }
-
-    lint {
-        abortOnError false
-        checkOnly 'NewApi', 'InlinedApi'
+    lintOptions {
         checkReleaseBuilds false
-        disable 'UnusedResources', 'RestrictedApi'
-        textOutput file('stdout')
-        textReport false
+        abortOnError false
         warningsAsErrors false
+        disable "UnusedResources", 'RestrictedApi'
+        textOutput "stdout"
+        textReport false
+        checkOnly 'NewApi', 'InlinedApi'
     }
 }
+
 
 tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:none', '-quiet')
@@ -61,17 +58,17 @@ tasks.withType(Javadoc) {
     options.addStringOption('charSet', 'UTF-8')
 }
 
+
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation fileTree(dir: "libs", include: ["*.jar", "*.aar"])
+    implementation 'androidx.appcompat:appcompat:1.6.1'
 
-    implementation "org.lsposed.hiddenapibypass:hiddenapibypass:$rootProject.ext.hiddenApiBypass"
-    implementation "com.iqiyi.xcrash:xcrash-android-lib:$rootProject.ext.xCrash"
-
-    implementation project(':BCore:black-fake')
-    implementation project(':BCore:black-hook')
-    implementation project(':BCore:xposed')
+    implementation "com.github.CodingGay.BlackReflection:core:$rootProject.ext.blackReflection"
+    implementation project(':Bcore:black-fake')
+    implementation project(':Bcore:black-hook')
     implementation project(':android-mirror')
 
-    implementation "androidx.core:core-ktx:$ktx_version"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation project(':Bcore:pine-core')
+    implementation project(':Bcore:pine-xposed')
+    implementation project(':Bcore:pine-xposed-res')
 }

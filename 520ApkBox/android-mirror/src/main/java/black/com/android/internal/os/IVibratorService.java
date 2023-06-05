@@ -3,11 +3,14 @@ package black.com.android.internal.os;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class IVibratorService {
-    public static class Stub {
-        public static final Reflector REF = Reflector.on("android.os.IVibratorService$Stub");
-        public static Reflector.StaticMethodWrapper<IInterface> asInterface = REF.staticMethod("asInterface", IBinder.class);
+@BClassName("android.os.IVibratorService")
+public interface IVibratorService {
+    @BClassName("android.os.IVibratorService$Stub")
+    interface Stub {
+        @BStaticMethod
+        IInterface asInterface(IBinder IBinder0);
     }
 }

@@ -1,11 +1,20 @@
 package black.android.content.pm;
 
-import black.Reflector;
 
-public class ApplicationInfoN {
-    public static final Reflector REF = Reflector.on("android.content.pm.ApplicationInfo");
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BField;
 
-    public static Reflector.FieldWrapper<String> credentialEncryptedDataDir = REF.field("credentialEncryptedDataDir");
-    public static Reflector.FieldWrapper<String> credentialProtectedDataDir = REF.field("credentialProtectedDataDir");
-    public static Reflector.FieldWrapper<String> deviceProtectedDataDir = REF.field("deviceProtectedDataDir");
+@BClassName("android.content.pm.ApplicationInfo")
+public interface ApplicationInfoN {
+    @BField
+    String credentialEncryptedDataDir();
+
+    @BField
+    String credentialProtectedDataDir();
+
+    @BField
+    String deviceEncryptedDataDir();
+
+    @BField
+    String deviceProtectedDataDir();
 }

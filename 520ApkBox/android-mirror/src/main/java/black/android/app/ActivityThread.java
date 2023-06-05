@@ -2,14 +2,11 @@ package black.android.app;
 
 import android.app.Activity;
 import android.app.Application;
-import android.app.ContentProviderHolder;
 import android.app.Instrumentation;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.ProviderInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Handler;
 import android.os.IBinder;
@@ -18,70 +15,191 @@ import android.os.IInterface;
 import java.util.List;
 import java.util.Map;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BConstructor;
+import top.niunaijun.blackreflection.annotation.BField;
+import top.niunaijun.blackreflection.annotation.BMethod;
+import top.niunaijun.blackreflection.annotation.BParamClassName;
+import top.niunaijun.blackreflection.annotation.BStaticField;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class ActivityThread {
-    public static final Reflector REF = Reflector.on("android.app.ActivityThread");
+@BClassName("android.app.ActivityThread")
+public interface ActivityThread {
+    @BField
+    Object mAppThread();
 
-    public static Reflector.FieldWrapper<IInterface> sPackageManager = REF.field("sPackageManager");
-    public static Reflector.FieldWrapper<IInterface> sPermissionManager = REF.field("sPermissionManager");
-    public static Reflector.FieldWrapper<Map<IBinder, Object>> mActivities = REF.field("mActivities");
-    public static Reflector.FieldWrapper<Object> mBoundApplication = REF.field("mBoundApplication");
-    public static Reflector.FieldWrapper<Handler> mH = REF.field("mH");
-    public static Reflector.FieldWrapper<Application> mInitialApplication = REF.field("mInitialApplication");
-    public static Reflector.FieldWrapper<Instrumentation> mInstrumentation = REF.field("mInstrumentation");
-    public static Reflector.FieldWrapper<Map<?, ?>> mProviderMap = REF.field("mProviderMap");
+    @BStaticField
+    IInterface sPackageManager();
 
-    public static Reflector.StaticMethodWrapper<Object> currentActivityThread = REF.staticMethod("currentActivityThread");
+    @BStaticField
+    IInterface sPermissionManager();
 
-    public static Reflector.MethodWrapper<IBinder> getApplicationThread = REF.method("getApplicationThread");
-    public static Reflector.MethodWrapper<Object> getSystemContext = REF.method("getSystemContext");
-    public static Reflector.MethodWrapper<Object> getLaunchingActivity = REF.method("getLaunchingActivity", IBinder.class);
-    public static Reflector.MethodWrapper<Void> performNewIntents = REF.method("performNewIntents", IBinder.class, List.class);
-    public static Reflector.MethodWrapper<Void> installProvider = REF.method("installProvider", Context.class, ContentProviderHolder.class, ProviderInfo.class, boolean.class, boolean.class, boolean.class);
+    @BField
+    Map<IBinder, Object> mActivities();
 
-    public static class CreateServiceData {
-        public static final Reflector REF = Reflector.on("android.app.ActivityThread$CreateServiceData");
+    @BField
+    Object mBoundApplication();
 
-        public static Reflector.FieldWrapper<ServiceInfo> info = REF.field("info");
+    @BField
+    Handler mH();
+
+    @BField
+    Application mInitialApplication();
+
+    @BField
+    Instrumentation mInstrumentation();
+
+    @BField
+    Map<String, java.lang.ref.WeakReference<?>> mPackages();
+
+    @BField
+    Map<?, ?> mProviderMap();
+
+    @BField
+    Map<?, ?> mLocalProvidersByName();
+
+    @BStaticMethod
+    Object currentActivityThread();
+
+    @BStaticMethod
+    Application currentApplication();
+
+    @BStaticMethod
+    String currentPackageName();
+
+    @BMethod
+    IBinder getApplicationThread();
+
+    @BMethod
+    Handler getHandler();
+
+    @BMethod
+    String getProcessName();
+
+    @BMethod
+    Object getSystemContext();
+
+    @BMethod
+    Object getActivityClient(IBinder token);
+
+    @BMethod
+    Object getLaunchingActivity(IBinder token);
+
+    @BMethod
+    Object getPackageInfo(ApplicationInfo ai, @BParamClassName("android.content.res.CompatibilityInfo") Object compatInfo,
+                          int flags);
+
+    @BMethod
+    void performNewIntents(IBinder IBinder0, List List1);
+
+    @BMethod
+    void sendActivityResult(IBinder IBinder0, String String1, int int2, int int3, Intent Intent4);
+
+    @BClassName("android.app.ActivityThread$CreateServiceData")
+    interface CreateServiceData {
+        @BField
+        Object compatInfo();
+
+        @BField
+        ServiceInfo info();
+
+        @BField
+        Intent intent();
+
+        @BField
+        IBinder token();
     }
 
-    public static class H {
-        public static final Reflector REF = Reflector.on("android.app.ActivityThread$H");
+    @BClassName("android.app.ActivityThread$H")
+    interface H {
+        @BStaticField
+        int CREATE_SERVICE();
 
-        public static Reflector.FieldWrapper<Integer> CREATE_SERVICE = REF.field("CREATE_SERVICE");
-        public static Reflector.FieldWrapper<Integer> EXECUTE_TRANSACTION = REF.field("EXECUTE_TRANSACTION");
-        public static Reflector.FieldWrapper<Integer> LAUNCH_ACTIVITY = REF.field("LAUNCH_ACTIVITY");
+        @BStaticField
+        int EXECUTE_TRANSACTION();
+
+        @BStaticField
+        int LAUNCH_ACTIVITY();
+
+        @BStaticField
+        int SCHEDULE_CRASH();
     }
 
-    public static class AppBindData {
-        public static final Reflector REF = Reflector.on("android.app.ActivityThread$AppBindData");
+    @BClassName("android.app.ActivityThread$AppBindData")
+    interface AppBindData {
+        @BField
+        ApplicationInfo appInfo();
 
-        public static Reflector.FieldWrapper<ApplicationInfo> appInfo = REF.field("appInfo");
-        public static Reflector.FieldWrapper<Object> info = REF.field("info");
-        public static Reflector.FieldWrapper<ComponentName> instrumentationName = REF.field("instrumentationName");
-        public static Reflector.FieldWrapper<String> processName = REF.field("processName");
-        public static Reflector.FieldWrapper<List<ProviderInfo>> providers = REF.field("providers");
+        @BField
+        Object info();
+
+        @BField
+        ComponentName instrumentationName();
+
+        @BField
+        String processName();
+
+        @BField
+        List<android.content.pm.ProviderInfo> providers();
     }
 
-    public static class ProviderClientRecordP {
-        public static final Reflector REF = Reflector.on("android.app.ActivityThread$ProviderClientRecord");
-
-        public static Reflector.FieldWrapper<String[]> mNames = REF.field("mNames");
-        public static Reflector.FieldWrapper<IInterface> mProvider = REF.field("mProvider");
+    @BClassName("android.app.ActivityThread$ProviderKey")
+    interface ProviderKeyJBMR1 {
+        @BConstructor
+        ProviderKeyJBMR1 _new(String String0, int int1);
     }
 
-    public static class ActivityClientRecord {
-        public static final Reflector REF = Reflector.on("android.app.ActivityThread$ActivityClientRecord");
+    @BClassName("android.app.ActivityThread$ProviderClientRecord")
+    interface ProviderClientRecordJB {
+        @BField
+        Object mHolder();
 
-        public static Reflector.FieldWrapper<Activity> activity = REF.field("activity");
-        public static Reflector.FieldWrapper<ActivityInfo> activityInfo = REF.field("activityInfo");
-        public static Reflector.FieldWrapper<Intent> intent = REF.field("intent");
-        public static Reflector.FieldWrapper<IBinder> token = REF.field("token");
-        public static Reflector.FieldWrapper<Object> packageInfo = REF.field("packageInfo");
+        @BField
+        IInterface mProvider();
     }
 
-    public static class AndroidOs {
-        public static final Reflector REF = Reflector.on("android.app.ActivityThread$AndroidOs");
+    @BClassName("android.app.ActivityThread$ProviderClientRecord")
+    interface ProviderClientRecordP {
+        @BConstructor
+        ProviderClientRecordP _new();
+
+        @BField
+        String[] mNames();
+
+        @BField
+        IInterface mProvider();
+    }
+
+    @BClassName("android.app.ActivityThread$ProviderClientRecord")
+    interface ProviderClientRecord {
+        @BConstructor
+        ProviderClientRecord _new();
+
+        @BField
+        String mName();
+
+        @BField
+        IInterface mProvider();
+    }
+
+    @BClassName("android.app.ActivityThread$ActivityClientRecord")
+    interface ActivityClientRecord {
+        @BField
+        Activity activity();
+
+        @BField
+        ActivityInfo activityInfo();
+
+        @BField
+        Intent intent();
+
+        @BField
+        Boolean isTopResumedActivity();
+
+        @BField
+        IBinder token();
+
+        @BField
+        Object packageInfo();
     }
 }

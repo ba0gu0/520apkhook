@@ -3,11 +3,14 @@ package black.com.android.internal.appwidget;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class IAppWidgetService {
-    public static class Stub {
-        public static final Reflector REF = Reflector.on("com.android.internal.appwidget.IAppWidgetService$Stub");
-        public static Reflector.StaticMethodWrapper<IInterface> asInterface = REF.staticMethod("asInterface", IBinder.class);
+@BClassName("com.android.internal.appwidget.IAppWidgetService")
+public interface IAppWidgetService {
+    @BClassName("com.android.internal.appwidget.IAppWidgetService$Stub")
+    interface Stub {
+        @BStaticMethod
+        IInterface asInterface(IBinder IBinder0);
     }
 }

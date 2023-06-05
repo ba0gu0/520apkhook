@@ -2,10 +2,15 @@ package black.android.content.pm;
 
 import android.content.pm.PackageParser.SigningDetails;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BConstructor;
+import top.niunaijun.blackreflection.annotation.BField;
 
-public class SigningInfo {
-    public static final Reflector REF = Reflector.on("android.content.pm.SigningInfo");
+@BClassName("android.content.pm.SigningInfo")
+public interface SigningInfo {
+    @BConstructor
+    android.content.pm.SigningInfo _new(SigningDetails SigningDetails0);
 
-    public static Reflector.ConstructorWrapper<android.content.pm.SigningInfo> _new = REF.constructor(SigningDetails.class);
+    @BField
+    SigningDetails mSigningDetails();
 }

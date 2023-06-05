@@ -3,11 +3,14 @@ package black.android.media;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class IMediaRouterService {
-    public static class Stub {
-        public static final Reflector REF = Reflector.on("android.media.IMediaRouterService$Stub");
-        public static Reflector.StaticMethodWrapper<IInterface> asInterface = REF.staticMethod("asInterface", IBinder.class);
+@BClassName("android.media.IMediaRouterService")
+public interface IMediaRouterService {
+    @BClassName("android.media.IMediaRouterService$Stub")
+    interface Stub {
+        @BStaticMethod
+        IInterface asInterface(IBinder IBinder0);
     }
 }

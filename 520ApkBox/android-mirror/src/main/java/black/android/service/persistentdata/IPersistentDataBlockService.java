@@ -3,11 +3,14 @@ package black.android.service.persistentdata;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class IPersistentDataBlockService {
-    public static class Stub {
-        public static final Reflector REF = Reflector.on("android.service.persistentdata.IPersistentDataBlockService$Stub");
-        public static Reflector.StaticMethodWrapper<IInterface> asInterface = REF.staticMethod("asInterface", IBinder.class);
+@BClassName("android.service.persistentdata.IPersistentDataBlockService")
+public interface IPersistentDataBlockService {
+    @BClassName("android.service.persistentdata.IPersistentDataBlockService$Stub")
+    interface Stub {
+        @BStaticMethod
+        IInterface asInterface(IBinder IBinder0);
     }
 }

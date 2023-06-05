@@ -3,10 +3,11 @@ package black.android.app;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class ApplicationThreadNative {
-    public static final Reflector REF = Reflector.on("android.app.ApplicationThreadNative");
-
-    public static Reflector.StaticMethodWrapper<IInterface> asInterface = REF.staticMethod("asInterface", IBinder.class);
+@BClassName("android.app.ApplicationThreadNative")
+public interface ApplicationThreadNative {
+    @BStaticMethod
+    IInterface asInterface(IBinder IBinder0);
 }

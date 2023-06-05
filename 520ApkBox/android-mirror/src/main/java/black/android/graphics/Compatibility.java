@@ -1,9 +1,13 @@
 package black.android.graphics;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class Compatibility {
-    public static final Reflector REF = Reflector.on("android.graphics.Compatibility");
-
-    public static Reflector.StaticMethodWrapper<Void> setTargetSdkVersion = REF.staticMethod("setTargetSdkVersion", int.class);
+/**
+ * Created by BlackBox on 2022/2/24.
+ */
+@BClassName("android.graphics.Compatibility")
+public interface Compatibility {
+    @BStaticMethod
+    void setTargetSdkVersion(int targetSdkVersion);
 }

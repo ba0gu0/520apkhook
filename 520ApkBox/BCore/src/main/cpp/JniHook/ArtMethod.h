@@ -1,3 +1,6 @@
+//
+// Created by Milk on 3/7/21.
+//
 #include <stdio.h>
 
 #ifndef ARTHOOK_ART_METHOD_H
@@ -34,4 +37,4 @@ static constexpr uint32_t kAccCorePlatformApi =       0x20000000;  // field, met
 // Reuse the values of kAccSkipAccessChecks and kAccMiranda which are not used for native methods.
 static constexpr uint32_t kAccFastNative =            0x00080000;  // method (runtime; native only)
 static constexpr uint32_t kAccCriticalNative =        0x00200000;  // method (runtime; native only)
-#endif // ARTHOOK_ART_METHOD_H
+#endif //ARTHOOK_ART_METHOD_H

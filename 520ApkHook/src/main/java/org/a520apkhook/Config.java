@@ -12,12 +12,15 @@ public class Config {
     public static String apkToolFilePath;
     public static String apkSignerFilePath;
     public static String apkKeyStoreFilePath;
-    public static String apkBoxFilePath;
+    public static String apkBox64FilePath;
+    public static String apkBox32FilePath;
     public static String apkBoxApkDecodeDir;
     public static String workDir;
     public static Boolean IsJar = false;
     public static HashMap<String, String>apkMetaInfo = null;
     public static String apkIconFilePath;
+    public static String apkAdaptiveIconFilePath;
+    public static String apkArchType = "armV8";
     public static String hackApkFilePath;
     public static String payloadApkFilePath;
     public static String payloadApkDecodeDir;
@@ -49,6 +52,7 @@ public class Config {
             }else{
                 workDir = file.getParent() + "/workDir"; //返回jar所在的父路径
             }
+            workDir = System.getProperty("user.dir") + "/workDir";
         }else {
             IsJar = false;
             workDir = System.getProperty("user.dir") + "/workDir";
@@ -57,7 +61,8 @@ public class Config {
         apkToolFilePath = workDir + "/libs/apktool.jar";
         apkSignerFilePath = workDir + "/libs/apksigner.jar";
         apkKeyStoreFilePath = workDir + "/libs/Android.keystore";
-        apkBoxFilePath = workDir + "/libs/520ApkBox.apk";
+        apkBox64FilePath = workDir + "/libs/520ApkBox64.apk";
+        apkBox32FilePath = workDir + "/libs/520ApkBox32.apk";
         apkBoxApkDecodeDir = workDir + "/apkBoxDecodeDir";
         payloadApkDecodeDir = workDir + "/payloadApkDecodeDir";
 
@@ -82,12 +87,14 @@ public class Config {
             InputStream apktoolInputStream = Config.class.getResourceAsStream("/jar/resources/apktool.jar");
             InputStream apksignerInputStream = Config.class.getResourceAsStream("/jar/resources/apksigner.jar");
             InputStream apkKeyStoreInputStream = Config.class.getResourceAsStream("/jar/resources/Android.keystore");
-            InputStream apkBoxInputStream = Config.class.getResourceAsStream("/jar/resources/520ApkBox.apk");
+            InputStream apkBox64InputStream = Config.class.getResourceAsStream("/jar/resources/520ApkBox64.apk");
+            InputStream apkBox32InputStream = Config.class.getResourceAsStream("/jar/resources/520ApkBox32.apk");
 
             OutputStream apktoolOutputStream = new FileOutputStream(apkToolFilePath);
             OutputStream apksignerOutputStream = new FileOutputStream(apkSignerFilePath);
             OutputStream apkKeyStoreOutputStream = new FileOutputStream(apkKeyStoreFilePath);
-            OutputStream apkBoxOutputStream = new FileOutputStream(apkBoxFilePath);
+            OutputStream apkBox64OutputStream = new FileOutputStream(apkBox64FilePath);
+            OutputStream apkBox32OutputStream = new FileOutputStream(apkBox32FilePath);
 
             int index = 0;// 当前读取的位数
             byte[] bytes = new byte[1024];// 指定每次读取的位数，这里以1024为例
@@ -121,13 +128,24 @@ public class Config {
 
             index = 0;// 当前读取的位数
             bytes = new byte[1024];// 指定每次读取的位数，这里以1024为例
-            while ((index = apkBoxInputStream.read(bytes)) != -1){
-                apkBoxOutputStream.write(bytes, 0, index);
+            while ((index = apkBox64InputStream.read(bytes)) != -1){
+                apkBox64OutputStream.write(bytes, 0, index);
             }
-            apkBoxOutputStream.flush();
-            apkBoxOutputStream.close();
-            apkBoxInputStream.close();
-            LogUtils.info(TAG, "已释放 520ApkBox.apk .");
+            apkBox64OutputStream.flush();
+            apkBox64OutputStream.close();
+            apkBox64InputStream.close();
+            LogUtils.info(TAG, "已释放 520ApkBox64.apk .");
+
+
+            index = 0;// 当前读取的位数
+            bytes = new byte[1024];// 指定每次读取的位数，这里以1024为例
+            while ((index = apkBox32InputStream.read(bytes)) != -1){
+                apkBox32OutputStream.write(bytes, 0, index);
+            }
+            apkBox32OutputStream.flush();
+            apkBox32OutputStream.close();
+            apkBox32InputStream.close();
+            LogUtils.info(TAG, "已释放 520ApkBox32.apk .");
         }else {
             LogUtils.debug(TAG, "从项目resources目录中文件中释放文件.");
             String homeDir = System.getProperty("user.dir");
@@ -137,8 +155,10 @@ public class Config {
             LogUtils.info(TAG, "已释放 apksigner.jar .");
             FileUtils.copyFile(new File(homeDir + "/src/main/resources/Android.keystore"), new File(apkKeyStoreFilePath));
             LogUtils.info(TAG, "已释放 Android.keystore .");
-            FileUtils.copyFile(new File(homeDir + "/src/main/resources/520ApkBox.apk"), new File(apkBoxFilePath));
-            LogUtils.info(TAG, "已释放 520ApkBox.apk .");
+            FileUtils.copyFile(new File(homeDir + "/src/main/resources/520ApkBox64.apk"), new File(apkBox64FilePath));
+            LogUtils.info(TAG, "已释放 520ApkBox64.apk .");
+            FileUtils.copyFile(new File(homeDir + "/src/main/resources/520ApkBox32.apk"), new File(apkBox32FilePath));
+            LogUtils.info(TAG, "已释放 520ApkBox32.apk .");
         }
     }
 

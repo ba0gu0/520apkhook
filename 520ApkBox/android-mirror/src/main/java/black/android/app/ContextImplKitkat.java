@@ -1,9 +1,21 @@
 package black.android.app;
 
-import black.Reflector;
+import java.io.File;
 
-public class ContextImplKitkat {
-    public static final Reflector REF = Reflector.on("android.app.ContextImpl");
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BField;
 
-    public static Reflector.FieldWrapper<String> mOpPackageName = REF.field("mOpPackageName");
+@BClassName("android.app.ContextImpl")
+public interface ContextImplKitkat {
+    @BField
+    Object mDisplayAdjustments();
+
+    @BField
+    File[] mExternalCacheDirs();
+
+    @BField
+    File[] mExternalFilesDirs();
+
+    @BField
+    String mOpPackageName();
 }

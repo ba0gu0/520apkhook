@@ -1,9 +1,11 @@
 package black.libcore.io;
 
-import black.Reflector;
 
-public class Libcore {
-    public static final Reflector REF = Reflector.on("libcore.io.Libcore");
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticField;
 
-    public static Reflector.FieldWrapper<Object> os = REF.field("os");
+@BClassName("libcore.io.Libcore")
+public interface Libcore {
+    @BStaticField
+    Object os();
 }

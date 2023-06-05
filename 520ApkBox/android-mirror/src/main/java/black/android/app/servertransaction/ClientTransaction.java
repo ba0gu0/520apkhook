@@ -4,11 +4,17 @@ import android.os.IBinder;
 
 import java.util.List;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BField;
 
-public class ClientTransaction {
-    public static final Reflector REF = Reflector.on("android.app.servertransaction.ClientTransaction");
+@BClassName("android.app.servertransaction.ClientTransaction")
+public interface ClientTransaction {
+    @BField
+    List<Object> mActivityCallbacks();
 
-    public static Reflector.FieldWrapper<List<Object>> mActivityCallbacks = REF.field("mActivityCallbacks");
-    public static Reflector.FieldWrapper<IBinder> mActivityToken = REF.field("mActivityToken");
+    @BField
+    IBinder mActivityToken();
+
+    @BField
+    Object mLifecycleStateRequest();
 }

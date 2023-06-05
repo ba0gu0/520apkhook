@@ -1,11 +1,32 @@
 package black.android.content.pm;
 
-import black.Reflector;
 
-public class ApplicationInfoL {
-    public static final Reflector REF = Reflector.on("android.content.pm.ApplicationInfo");
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BField;
 
-    public static Reflector.FieldWrapper<String> primaryCpuAbi = REF.field("primaryCpuAbi");
-    public static Reflector.FieldWrapper<String> scanPublicSourceDir = REF.field("scanPublicSourceDir");
-    public static Reflector.FieldWrapper<String> scanSourceDir = REF.field("scanSourceDir");
+@BClassName("android.content.pm.ApplicationInfo")
+public interface ApplicationInfoL {
+    @BField
+    String primaryCpuAbi();
+
+    @BField
+    Integer privateFlags();
+
+    @BField
+    String scanPublicSourceDir();
+
+    @BField
+    String scanSourceDir();
+
+    @BField
+    String secondaryCpuAbi();
+
+    @BField
+    String secondaryNativeLibraryDir();
+
+    @BField
+    String[] splitPublicSourceDirs();
+
+    @BField
+    String[] splitSourceDirs();
 }

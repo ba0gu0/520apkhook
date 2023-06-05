@@ -6,19 +6,54 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BField;
+import top.niunaijun.blackreflection.annotation.BMethod;
+import top.niunaijun.blackreflection.annotation.BParamClassName;
 
-public class IActivityManager {
-    public static final Reflector REF = Reflector.on("android.app.IActivityManager");
+@BClassName("android.app.IActivityManager")
+public interface IActivityManager {
+    @BMethod
+    Integer getTaskForActivity(IBinder IBinder0, boolean boolean1);
 
-    public static Reflector.MethodWrapper<Integer> getTaskForActivity = REF.method("getTaskForActivity", IBinder.class, boolean.class);
-    public static Reflector.MethodWrapper<Void> setRequestedOrientation = REF.method("setRequestedOrientation", IBinder.class, int.class);
-    public static Reflector.MethodWrapper<Integer> startActivity = REF.method("startActivity", Reflector.findClass("android.app.IApplicationThread"), String.class, Intent.class, String.class, IBinder.class, String.class, int.class, int.class, Reflector.findClass("android.app.ProfilerInfo"), Bundle.class);
+    @BMethod
+    void overridePendingTransition(IBinder IBinder0, String String1, int int2, int int3);
 
-    public static class ContentProviderHolder {
-        public static final Reflector REF = Reflector.on("android.app.IActivityManager$ContentProviderHolder");
+    @BMethod
+    void setRequestedOrientation(IBinder IBinder0, int int1);
 
-        public static Reflector.FieldWrapper<ProviderInfo> info = REF.field("info");
-        public static Reflector.FieldWrapper<IInterface> provider = REF.field("provider");
+    @BMethod
+    Integer startActivities();
+
+    @BMethod
+    Integer startActivity(@BParamClassName("android.app.IApplicationThread") Object caller, String callingPackage,
+                          Intent intent, String resolvedType, IBinder resultTo, String resultWho, int requestCode,
+                          int startFlags, @BParamClassName("android.app.ProfilerInfo") Object profilerInfo, Bundle bOptions);
+
+    @BClassName("android.app.IActivityManager$ContentProviderHolder")
+    interface ContentProviderHolderMIUI {
+        @BField
+        ProviderInfo info();
+
+        @BField
+        boolean noReleaseNeeded();
+
+        @BField
+        IInterface provider();
+
+        @BField
+        boolean waitProcessStart();
+    }
+
+    @BClassName("android.app.IActivityManager$ContentProviderHolder")
+    interface ContentProviderHolder {
+        @BField
+        ProviderInfo info();
+
+        @BField
+        boolean noReleaseNeeded();
+
+        @BField
+        IInterface provider();
     }
 }

@@ -1,45 +1,97 @@
 package black.android.app;
 
 import android.app.Application;
+import android.app.IServiceConnection;
 import android.app.Instrumentation;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.IIntentReceiver;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
+import android.os.Handler;
+import android.os.IInterface;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BField;
+import top.niunaijun.blackreflection.annotation.BMethod;
 
-public class LoadedApk {
-    public static final Reflector REF = Reflector.on("android.app.LoadedApk");
+@BClassName("android.app.LoadedApk")
+public interface LoadedApk {
+    @BField
+    Application mApplication();
 
-    public static Reflector.FieldWrapper<ApplicationInfo> mApplicationInfo = REF.field("mApplicationInfo");
-    public static Reflector.FieldWrapper<Boolean> mSecurityViolation = REF.field("mSecurityViolation");
+    @BField
+    ApplicationInfo mApplicationInfo();
 
-    public static Reflector.MethodWrapper<ClassLoader> getClassLoader = REF.method("getClassLoader");
-    public static Reflector.MethodWrapper<Application> makeApplication = REF.method("makeApplication", boolean.class, Instrumentation.class);
+    @BField
+    File mCredentialProtectedDataDirFile();
 
-    public static class ServiceDispatcher {
-        public static final Reflector REF = Reflector.on("android.app.LoadedApk$ServiceDispatcher");
+    @BField
+    String mDataDir();
 
-        public static Reflector.FieldWrapper<ServiceConnection> mConnection = REF.field("mConnection");
+    @BField
+    File mDataDirFile();
 
-        public static class InnerConnection {
-            public static final Reflector REF = Reflector.on("android.app.LoadedApk$ServiceDispatcher$InnerConnection");
+    @BField
+    File mDeviceProtectedDataDirFile();
 
-            public static Reflector.FieldWrapper<WeakReference<?>> mDispatcher = REF.field("mDispatcher");
+    @BField
+    String mLibDir();
+
+    @BField
+    boolean mSecurityViolation();
+
+    @BField
+    boolean mPackageName();
+
+    @BMethod
+    Object getResources();
+
+    @BMethod
+    IServiceConnection forgetServiceDispatcher(Context Context0, ServiceConnection ServiceConnection1);
+
+    @BMethod
+    ClassLoader getClassLoader();
+
+    @BMethod
+    IServiceConnection getServiceDispatcher(ServiceConnection ServiceConnection0, Context Context1, Handler Handler2, int int3);
+
+    @BMethod
+    Application makeApplication(boolean boolean0, Instrumentation Instrumentation1);
+
+    @BClassName("android.app.LoadedApk$ServiceDispatcher")
+    interface ServiceDispatcher {
+        @BField
+        ServiceConnection mConnection();
+
+        @BField
+        Context mContext();
+
+        @BClassName("android.app.LoadedApk$ServiceDispatcher$InnerConnection")
+        interface InnerConnection {
+            @BField
+            WeakReference<?> mDispatcher();
         }
     }
 
-    public static class ReceiverDispatcher {
-        public static final Reflector REF = Reflector.on("android.app.LoadedApk$ReceiverDispatcher");
+    @BClassName("android.app.LoadedApk$ReceiverDispatcher")
+    interface ReceiverDispatcher {
+        @BField
+        IIntentReceiver mIIntentReceiver();
 
-        public static Reflector.FieldWrapper<IIntentReceiver> mIIntentReceiver = REF.field("mIIntentReceiver");
+        @BField
+        BroadcastReceiver mReceiver();
 
-        public static class InnerReceiver {
-            public static final Reflector REF = Reflector.on("android.app.LoadedApk$ReceiverDispatcher$InnerReceiver");
+        @BMethod
+        IInterface getIIntentReceiver();
 
-            public static Reflector.FieldWrapper<WeakReference<?>> mDispatcher = REF.field("mDispatcher");
+        @BClassName("android.app.LoadedApk$ReceiverDispatcher$InnerReceiver")
+        interface InnerReceiver {
+            @BField
+            WeakReference<?> mDispatcher();
         }
     }
 }

@@ -21,11 +21,11 @@ import java.util.Objects;
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 
-import top.niunaijun.bcore.BlackBoxCore;
-import top.niunaijun.bcore.app.BActivityThread;
-import top.niunaijun.bcore.app.configuration.AppLifecycleCallback;
-import top.niunaijun.bcore.app.configuration.ClientConfiguration;
-import top.niunaijun.bcore.utils.FileUtils;
+import top.niunaijun.blackbox.BlackBoxCore;
+import top.niunaijun.blackbox.app.BActivityThread;
+import top.niunaijun.blackbox.app.configuration.AppLifecycleCallback;
+import top.niunaijun.blackbox.app.configuration.ClientConfiguration;
+import top.niunaijun.blackbox.utils.FileUtils;
 
 public class MainApplication extends Application {
     private static final String TAG = "520ApkBox MainApplication";
@@ -128,6 +128,7 @@ public class MainApplication extends Application {
                 public boolean requestInstallPackage(File file, int userId) {
                     return false;
                 }
+
             });
             BlackBoxCore.get().addAppLifecycleCallback(new AppLifecycleCallback(){
                 @Override

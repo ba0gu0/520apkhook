@@ -1,5 +1,10 @@
-#ifndef BLACKBOX_UNIXFILESYSTEMHOOK_H
-#define BLACKBOX_UNIXFILESYSTEMHOOK_H
+//
+// Created by Milk on 4/9/21.
+//
+
+#ifndef VIRTUALM_UNIXFILESYSTEMHOOK_H
+#define VIRTUALM_UNIXFILESYSTEMHOOK_H
+
 
 #include "BaseHook.h"
 
@@ -8,4 +13,5 @@ public:
     static void init(JNIEnv *env);
 };
 
-#endif // BLACKBOX_UNIXFILESYSTEMHOOK_H
+
+#endif //VIRTUALM_UNIXFILESYSTEMHOOK_H

@@ -28,8 +28,14 @@ public class HackApk {
         // 初始化, 打开apk文件
     }
     public Boolean decodeApkFile (){
-        LogUtils.info(TAG, "使用apktool反编译模板Apk, " + Config.apkBoxFilePath);
-            return runJar(new File(Config.apkToolFilePath), new String[]{"d", Config.apkBoxFilePath, "-f", "-o", Config.apkBoxApkDecodeDir});
+        if (Objects.equals(Config.apkArchType, "armV8")){
+            LogUtils.info(TAG, "目标Apk支持64位, 使用apktool反编译模板Apk, " + Config.apkBox64FilePath);
+            return runJar(new File(Config.apkToolFilePath), new String[]{"d", Config.apkBox64FilePath, "-f", "-o", Config.apkBoxApkDecodeDir});
+        }else {
+            LogUtils.info(TAG, "目标Apk仅支持32位, 使用apktool反编译模板Apk, " + Config.apkBox32FilePath);
+            return runJar(new File(Config.apkToolFilePath), new String[]{"d", Config.apkBox32FilePath, "-f", "-o", Config.apkBoxApkDecodeDir});
+        }
+
     }
 
     public Boolean changeAndroidManifest() {
@@ -237,6 +243,10 @@ public class HackApk {
         FileUtils.delete(new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher.png"));
         LogUtils.info(TAG, "已清空模板App中的 mipmap-xxxhdpi 文件夹.");
         FileUtils.copyFile(new File(Config.apkIconFilePath), new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher." + FilenameUtils.getExtension(Config.apkIconFilePath)));
+        if (!Objects.equals(Config.apkAdaptiveIconFilePath, "")){
+            FileUtils.copyFile(new File(Config.apkAdaptiveIconFilePath), new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher_foreground." + FilenameUtils.getExtension(Config.apkIconFilePath)));
+        }
+
         LogUtils.info(TAG, "重新向模板App中的 mipmap-xxxhdpi 文件夹复制图标文件.");
 
         LogUtils.info(TAG, "所有资源文件已复制完成.");

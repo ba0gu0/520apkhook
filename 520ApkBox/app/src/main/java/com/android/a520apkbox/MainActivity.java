@@ -11,9 +11,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-import top.niunaijun.bcore.BlackBoxCore;
-import top.niunaijun.bcore.entity.pm.InstallResult;
-import top.niunaijun.bcore.utils.FileUtils;
+import top.niunaijun.blackbox.BlackBoxCore;
+import top.niunaijun.blackbox.entity.pm.InstallResult;
+import top.niunaijun.blackbox.utils.FileUtils;
 
 public class MainActivity extends Activity {
     private static final String TAG = "520ApkBox MainActivity";
@@ -37,13 +37,10 @@ public class MainActivity extends Activity {
     }
     @Override
     protected void onPause() {
+
+        finish();
         super.onPause();
         pauseNum += 1;
-        if (pauseNum >= 2) {
-            Log.d(TAG, String.format("finish startAgain: %s, pauseNum: %s", startAgain, pauseNum));
-            super.onDestroy();
-            finish();
-        }
         Log.d(TAG, String.format("onPause() startAgain: %s, pauseNum: %s", startAgain, pauseNum));
     }
     @Override

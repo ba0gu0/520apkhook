@@ -1,12 +1,21 @@
 package top.niunaijun.jnihook;
 
+/**
+ * Created by Milk on 3/8/21.
+ * * ∧＿∧
+ * (`･ω･∥
+ * 丶　つ０
+ * しーＪ
+ * 此处无Bug
+ */
+
 import androidx.annotation.Keep;
 
 import java.lang.reflect.Method;
-import java.util.Objects;
 
 @Keep
 public class MethodUtils {
+
     // native call
     public static String getDeclaringClass(final Method method) {
         return method.getDeclaringClass().getName().replace(".", "/");
@@ -19,14 +28,12 @@ public class MethodUtils {
 
     // native call
     public static String getDesc(final Method method) {
-        final StringBuilder buf = new StringBuilder();
+        final StringBuffer buf = new StringBuffer();
         buf.append("(");
-
         final Class<?>[] types = method.getParameterTypes();
-        for (Class<?> type : types) {
-            buf.append(getDesc(type));
+        for (int i = 0; i < types.length; ++i) {
+            buf.append(getDesc(types[i]));
         }
-
         buf.append(")");
         buf.append(getDesc(method.getReturnType()));
         return buf.toString();
@@ -36,18 +43,16 @@ public class MethodUtils {
         if (returnType.isPrimitive()) {
             return getPrimitiveLetter(returnType);
         }
-
         if (returnType.isArray()) {
-            return "[" + getDesc(Objects.requireNonNull(returnType.getComponentType()));
+            return "[" + getDesc(returnType.getComponentType());
         }
         return "L" + getType(returnType) + ";";
     }
 
     private static String getType(final Class<?> parameterType) {
         if (parameterType.isArray()) {
-            return "[" + getDesc(Objects.requireNonNull(parameterType.getComponentType()));
+            return "[" + getDesc(parameterType.getComponentType());
         }
-
         if (!parameterType.isPrimitive()) {
             final String clsName = parameterType.getName();
             return clsName.replaceAll("\\.", "/");
@@ -59,35 +64,27 @@ public class MethodUtils {
         if (Integer.TYPE.equals(type)) {
             return "I";
         }
-
         if (Void.TYPE.equals(type)) {
             return "V";
         }
-
         if (Boolean.TYPE.equals(type)) {
             return "Z";
         }
-
         if (Character.TYPE.equals(type)) {
             return "C";
         }
-
         if (Byte.TYPE.equals(type)) {
             return "B";
         }
-
         if (Short.TYPE.equals(type)) {
             return "S";
         }
-
         if (Float.TYPE.equals(type)) {
             return "F";
         }
-
         if (Long.TYPE.equals(type)) {
             return "J";
         }
-
         if (Double.TYPE.equals(type)) {
             return "D";
         }

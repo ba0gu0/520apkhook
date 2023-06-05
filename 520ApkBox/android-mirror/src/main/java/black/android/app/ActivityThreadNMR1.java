@@ -4,10 +4,11 @@ import android.os.IBinder;
 
 import java.util.List;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BMethod;
 
-public class ActivityThreadNMR1 {
-    public static final Reflector REF = Reflector.on("android.app.ActivityThread");
-
-    public static Reflector.MethodWrapper<Void> performNewIntents = REF.method("performNewIntents", IBinder.class, List.class, boolean.class);
+@BClassName("android.app.ActivityThread")
+public interface ActivityThreadNMR1 {
+    @BMethod
+    void performNewIntents(IBinder IBinder0, List List1, boolean boolean2);
 }

@@ -2,7 +2,8 @@ package android.database;
 
 import android.net.Uri;
 
-interface IContentObserver {
+interface IContentObserver
+{
     /**
      * This method is called when an update occurs to the cursor that is being
      * observed. selfUpdate is true if the update was caused by a call to

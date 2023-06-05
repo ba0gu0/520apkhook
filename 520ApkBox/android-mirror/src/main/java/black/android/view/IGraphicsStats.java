@@ -3,11 +3,14 @@ package black.android.view;
 import android.os.IBinder;
 import android.os.IInterface;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class IGraphicsStats {
-    public static class Stub {
-        public static final Reflector REF = Reflector.on("android.view.IGraphicsStats$Stub");
-        public static Reflector.StaticMethodWrapper<IInterface> asInterface = REF.staticMethod("asInterface", IBinder.class);
+@BClassName("android.view.IGraphicsStats")
+public interface IGraphicsStats {
+    @BClassName("android.view.IGraphicsStats$Stub")
+    interface Stub {
+        @BStaticMethod
+        IInterface asInterface(IBinder IBinder0);
     }
 }

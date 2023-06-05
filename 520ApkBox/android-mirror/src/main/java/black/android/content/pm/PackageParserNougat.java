@@ -1,11 +1,13 @@
 package black.android.content.pm;
 
+
 import android.content.pm.PackageParser;
 
-import black.Reflector;
+import top.niunaijun.blackreflection.annotation.BClassName;
+import top.niunaijun.blackreflection.annotation.BStaticMethod;
 
-public class PackageParserNougat {
-    public static final Reflector REF = Reflector.on("android.content.pm.PackageParser");
-
-    public static Reflector.StaticMethodWrapper<Void> collectCertificates = REF.staticMethod("collectCertificates", PackageParser.Package.class, int.class);
+@BClassName("android.content.pm.PackageParser")
+public interface PackageParserNougat {
+    @BStaticMethod
+    void collectCertificates(PackageParser.Package p, int flags);
 }

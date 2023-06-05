@@ -5,7 +5,16 @@ import android.os.Parcelable;
 
 import java.security.PublicKey;
 
+/**
+ * Created by Milk on 2021/5/7.
+ * * ∧＿∧
+ * (`･ω･∥
+ * 丶　つ０
+ * しーＪ
+ * 此处无Bug
+ */
 public class VerifierInfo implements Parcelable {
+
     public static final Parcelable.Creator<VerifierInfo> CREATOR = new Parcelable.Creator<VerifierInfo>() {
         public VerifierInfo createFromParcel(final Parcel source) {
             return new VerifierInfo(source);
