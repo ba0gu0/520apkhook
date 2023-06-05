@@ -81,7 +81,9 @@ public class GetPayloadApkInfo {
             if (receiverElement.attribute("name").getStringValue().startsWith(".")){
                 receiverElement.addAttribute("name", Config.payloadApkPackageName + receiverElement.attribute("name").getStringValue());
             }
-            receiverElement.addAttribute("android:exported", "true");
+            if (receiverElement.attribute("android:exported") == null){
+                receiverElement.addAttribute("android:exported", "true");
+            }
 
             applicationNode.add(receiverElement.createCopy());
         }
