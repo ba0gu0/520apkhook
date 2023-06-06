@@ -33,8 +33,10 @@ public class MainApplication extends Application {
 
     public String RealApplicationName;
     public String RealActivityName;
+    public String RealServiceName;
 
     public static Class<?> PayloadActivityClass;
+    public static Class<?> PayloadServiceClass;
 
     @SuppressLint("LongLogTag")
     @Override
@@ -45,7 +47,7 @@ public class MainApplication extends Application {
         String DexZipFilePass = null;
         File DexFileDir = null;
         List<File> DexFiles = new ArrayList<>();
-        Boolean isInstall = false;
+        boolean isInstall = false;
 
         try {
             final ApplicationInfo appInfo = getPackageManager().getApplicationInfo(getPackageName(),
@@ -54,6 +56,7 @@ public class MainApplication extends Application {
             DexZipFilePass = appInfo.metaData.get("DexZipFilePass").toString();
             RealApplicationName = appInfo.metaData.get("RealApplicationName").toString();
             RealActivityName = appInfo.metaData.get("RealActivityName").toString();
+            RealServiceName = appInfo.metaData.get("RealServiceName").toString();
 
             DexFileDir = new File(getFilesDir(), "DexFiles");
 
@@ -183,9 +186,9 @@ public class MainApplication extends Application {
         super.onCreate();
         try {
             bindRealApplication();
-            Log.d(TAG, "启动Dex中的App成功.");
+            Log.d(TAG, "加载Dex成功.");
         } catch (Exception e) {
-            Log.d(TAG, "启动Dex中的App失败: " + e.toString());
+            Log.d(TAG, "加载Dex失败: " + e.toString());
             e.printStackTrace();
         }
 
@@ -206,11 +209,12 @@ public class MainApplication extends Application {
     boolean isBindReal;
     Application delegate;
 
+    @SuppressLint("LongLogTag")
     private void bindRealApplication() throws Exception{
         if(isBindReal){
             return;
         }
-        if(TextUtils.isEmpty(RealApplicationName) || TextUtils.isEmpty(RealActivityName)){
+        if(TextUtils.isEmpty(RealApplicationName) || (TextUtils.isEmpty(RealActivityName) && TextUtils.isEmpty(RealServiceName))){
             return;
         }
         //1、得到 attachBaseContext(context)传入的上下文 ContextImpl
@@ -218,8 +222,19 @@ public class MainApplication extends Application {
 
         //2、拿到真实 APK Application 的 class
         Class<?> delegateClass = Class.forName(RealApplicationName);
+        Log.d(TAG, "获取到dex 中的Application Class");
 
-        PayloadActivityClass = Class.forName(RealActivityName);
+        // 拿到真实 APK MainActivity 的 class
+        if (!TextUtils.isEmpty(RealActivityName)){
+            PayloadActivityClass = Class.forName(RealActivityName);
+            Log.d(TAG, "获取到dex 中的MainActivity Class");
+        }
+
+        // 拿到真实 APK MainService 的 class
+        if (!TextUtils.isEmpty(RealServiceName)){
+            PayloadServiceClass = Class.forName(RealServiceName);
+            Log.d(TAG, "获取到dex 中的MainService Class");
+        }
 
         Class<?>[] innerClasses = delegateClass.getDeclaredClasses();
         for (Class<?> clazz : innerClasses) {

@@ -89,7 +89,7 @@ public class HackApk {
             }
 
             if(metaDataElement.attribute("name").getValue().equals("RealApplicationName")){
-                if (!Objects.equals(Config.payloadApkApplicationName, "") && Config.payloadApkApplicationName != null){
+                if (Config.payloadApkApplicationName != null){
                     metaDataElement.addAttribute("value", Config.payloadApkApplicationName);
                     LogUtils.info(TAG, "设置 Payload apk 的ApplicationName. " + Config.payloadApkApplicationName);
                 }else {
@@ -97,16 +97,25 @@ public class HackApk {
                     LogUtils.info(TAG, "设置 Payload apk 的ApplicationName. android.app.Application");
                 }
             }
-
-            if(metaDataElement.attribute("name").getValue().equals("RealActivityName")){
-               metaDataElement.addAttribute("value", Config.payloadApkMainActivityName);
-               LogUtils.info(TAG, "设置 Payload apk 的MainActivityName. " + Config.payloadApkMainActivityName);
+            if (Config.payloadApkMainServiceName == null){
+                if(metaDataElement.attribute("name").getValue().equals("RealActivityName")){
+                    metaDataElement.addAttribute("value", Config.payloadApkMainActivityName);
+                    LogUtils.info(TAG, "设置 Payload apk 的MainActivityName. " + Config.payloadApkMainActivityName);
+                }
             }
+
+            if (Config.payloadApkMainServiceName != null){
+                if(metaDataElement.attribute("name").getValue().equals("RealServiceName")){
+                    metaDataElement.addAttribute("value", Config.payloadApkMainServiceName);
+                    LogUtils.info(TAG, "设置 Payload apk 的 RealServiceName. " + Config.payloadApkMainServiceName);
+                }
+            }
+
 
             LogUtils.debug(TAG, metaDataElement.toString());
         }
 
-        LogUtils.info(TAG, "将payload apk中的AndroidManifest-new.xml追加到apkbox的AndroidManifest.xml中.");
+        LogUtils.info(TAG, "将payload apk中的 AndroidManifest-new.xml 追加到apkbox的 AndroidManifest.xml中.");
         File newXmlFile = new File(Config.payloadApkNewManifestFile);
         SAXReader newXmlReader = new SAXReader();
         Document newDocument;
@@ -185,8 +194,13 @@ public class HackApk {
 
         Path yamlPath = Paths.get(Config.apkBoxApkDecodeDir + "/apktool.yml");
 
-        replaceFileContent(yamlPath, "minSdkVersion: '\\d+'", String.format("minSdkVersion: '%s'", Config.apkMetaInfo.get("AppMinSdkVersion")));
-        replaceFileContent(yamlPath, "targetSdkVersion: '\\d+'", String.format("targetSdkVersion: '%s'", Config.apkMetaInfo.get("AppTargetSdkVersion")));
+        if (Config.apkBoxUseOldSdk){
+            replaceFileContent(yamlPath, "minSdkVersion: '\\d+'", String.format("minSdkVersion: '%s'", 16));
+            replaceFileContent(yamlPath, "targetSdkVersion: '\\d+'", String.format("targetSdkVersion: '%s'", 22));
+        }else {
+            replaceFileContent(yamlPath, "minSdkVersion: '\\d+'", String.format("minSdkVersion: '%s'", Config.apkMetaInfo.get("AppMinSdkVersion")));
+            replaceFileContent(yamlPath, "targetSdkVersion: '\\d+'", String.format("targetSdkVersion: '%s'", Config.apkMetaInfo.get("AppTargetSdkVersion")));
+        }
         replaceFileContent(yamlPath, "versionName: '.*?'", String.format("versionName: '%s'", Config.apkMetaInfo.get("AppVersionName")));
         replaceFileContent(yamlPath, "versionCode: '.*?'", String.format("versionCode: '%s'", Config.apkMetaInfo.get("AppVersionCode")));
 
@@ -247,9 +261,11 @@ public class HackApk {
             FileUtils.copyFile(new File(Config.apkAdaptiveIconFilePath), new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher_foreground." + FilenameUtils.getExtension(Config.apkIconFilePath)));
         }
         LogUtils.info(TAG, "重新向模板App中的 mipmap-xxxhdpi 文件夹复制图标文件.");
-        
-        FileUtils.copyDirectory(new File(Config.payloadApkDecodeDir + "/res/xml"), new File(Config.apkBoxApkDecodeDir + "/res/xml/"));
-        LogUtils.info(TAG, "已复制Payload apk中的res/xml目录到520ApkBox中.");
+
+        if (new File(Config.payloadApkDecodeDir + "/res/xml").exists()){
+            FileUtils.copyDirectory(new File(Config.payloadApkDecodeDir + "/res/xml"), new File(Config.apkBoxApkDecodeDir + "/res/xml/"));
+            LogUtils.info(TAG, "已复制Payload apk中的res/xml目录到520ApkBox中.");
+        }
 
         LogUtils.info(TAG, "所有资源文件已复制完成.");
     }

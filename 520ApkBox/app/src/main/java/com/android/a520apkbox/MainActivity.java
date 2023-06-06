@@ -27,9 +27,35 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         if (MainApplication.PayloadActivityClass != null){
-            Intent intent = new Intent(MainActivity.this, MainApplication.PayloadActivityClass);
-            startActivity(intent);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // 执行线程中的任务
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Intent intent = new Intent(MainActivity.this, MainApplication.PayloadActivityClass);
+                            startActivity(intent);
+                        }
+                    });
+                }
+            }).start();
             Log.d(TAG, "Payload Activity启动");
+        }
+
+        if (MainApplication.PayloadServiceClass != null){
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // 执行线程中的任务
+                    runOnUiThread(new Runnable() {
+                        public void run() {
+                            Intent intent = new Intent(MainActivity.this, MainApplication.PayloadServiceClass);
+                            MainActivity.this.startService(intent);
+                        }
+                    });
+                }
+            }).start();
+            Log.d(TAG, "Payload Service启动");
         }
 
         startAgain = true;

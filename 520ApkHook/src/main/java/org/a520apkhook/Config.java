@@ -15,6 +15,7 @@ public class Config {
     public static String apkBox64FilePath;
     public static String apkBox32FilePath;
     public static String apkBoxApkDecodeDir;
+    public static boolean apkBoxUseOldSdk;
     public static String workDir;
     public static Boolean IsJar = false;
     public static HashMap<String, String>apkMetaInfo = null;
@@ -26,6 +27,7 @@ public class Config {
     public static String payloadApkDecodeDir;
     public static String payloadApkApplicationName;
     public static String payloadApkMainActivityName;
+    public static String payloadApkMainServiceName;
     public static String payloadApkPackageName;
     public static String payloadApkNewManifestFile;
     public static String payloadApkDexZipFilePath;

