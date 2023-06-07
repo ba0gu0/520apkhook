@@ -21,7 +21,7 @@ android {
 
     signingConfigs {
         release {
-            storeFile file('signer.keystore')
+            storeFile file('signerKey/signer.keystore')
             storePassword 'p@ssw0rd'
             keyAlias 'Android'
             keyPassword 'p@ssw0rd'
