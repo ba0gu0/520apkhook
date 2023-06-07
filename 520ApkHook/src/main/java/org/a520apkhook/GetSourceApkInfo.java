@@ -157,14 +157,14 @@ public class GetSourceApkInfo
         }
         LogUtils.info(TAG, "获取注入 Apk 的最大的自适配图标信息: " + maxAdaptiveIcon.toString());
 
-        Config.apkAdaptiveIconFilePath = Config.workDir + "/hackApkAdaptiveIcon" + maxAdaptiveIconName;
-        try (FileOutputStream fos = new FileOutputStream(Config.apkAdaptiveIconFilePath);){
-            fos.write(maxAdaptiveIcon.getData(), 0, maxAdaptiveIcon.getData().length);
-            LogUtils.info(TAG, "读取注入 Apk 最大的自适配图标并保存, 保存位置: " + Config.apkAdaptiveIconFilePath);
-        }catch (IOException e){
-            e.printStackTrace();
-            return false;
-        }
+//        Config.apkAdaptiveIconFilePath = Config.workDir + "/hackApkAdaptiveIcon" + maxAdaptiveIconName;
+//        try (FileOutputStream fos = new FileOutputStream(Config.apkAdaptiveIconFilePath);){
+//            fos.write(maxAdaptiveIcon.getData(), 0, maxAdaptiveIcon.getData().length);
+//            LogUtils.info(TAG, "读取注入 Apk 最大的自适配图标并保存, 保存位置: " + Config.apkAdaptiveIconFilePath);
+//        }catch (IOException e){
+//            e.printStackTrace();
+//            return false;
+//        }
 
         return true;
     }

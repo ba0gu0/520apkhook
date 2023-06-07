@@ -257,9 +257,9 @@ public class HackApk {
         FileUtils.delete(new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher.png"));
         LogUtils.info(TAG, "已清空模板App中的 mipmap-xxxhdpi 文件夹.");
         FileUtils.copyFile(new File(Config.apkIconFilePath), new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher." + FilenameUtils.getExtension(Config.apkIconFilePath)));
-        if (!Objects.equals(Config.apkAdaptiveIconFilePath, "")){
-            FileUtils.copyFile(new File(Config.apkAdaptiveIconFilePath), new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher_foreground." + FilenameUtils.getExtension(Config.apkIconFilePath)));
-        }
+//        if (!Objects.equals(Config.apkAdaptiveIconFilePath, "")){
+//            FileUtils.copyFile(new File(Config.apkAdaptiveIconFilePath), new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher_foreground." + FilenameUtils.getExtension(Config.apkIconFilePath)));
+//        }
         LogUtils.info(TAG, "重新向模板App中的 mipmap-xxxhdpi 文件夹复制图标文件.");
 
         if (new File(Config.payloadApkDecodeDir + "/res/xml").exists()){
