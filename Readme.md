@@ -48,7 +48,7 @@
 
 1. 下载Releases中打包好的jar包  
 
- * [a520ApkHook-1.2-jar-with-dependencies.jar](https://github.com/ba0gu0/520apkhook/releases/download/v2.0/a520ApkHook-1.2-jar-with-dependencies.jar)
+ * [a520ApkHook-1.2-jar-with-dependencies.jar](https://github.com/ba0gu0/520apkhook/releases/download/v1.2/a520ApkHook-1.1-jar-with-dependencies.jar)
 
 2. msfmsfvenom
 
