@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="permission_to_setting">Permission request is denied. Please grant permission manually in settings</string>
+</resources>

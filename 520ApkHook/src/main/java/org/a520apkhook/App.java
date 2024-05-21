@@ -2,6 +2,7 @@ package org.a520apkhook;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
@@ -10,7 +11,7 @@ import picocli.CommandLine.Parameters;
 
 import org.apache.commons.io.FileUtils;
 
-@Command(name = "520ApkHook", mixinStandardHelpOptions = true, version = "520ApkHook V1.0",
+@Command(name = "520ApkHook", mixinStandardHelpOptions = true, version = "520ApkHook V1.2",
         description = "使用虚拟化技术将远控apk注入到一些apk中. \n源项目通过反编译修改源APK文件以达到注入Payload目的, 会被各种加固检测到, 新版本不需要对源APK进行任何修改, 直接使用虚拟技术运行APK, 绕过APK安全检测. \n项目地址: https://github.com/ba0gu0/520apkhook")
 public class App implements Runnable
 {
@@ -36,6 +37,9 @@ public class App implements Runnable
 
     @Option(names = {"-s", "--payloadService"}, description = "远控apk中, 用来启动Service服务名称. 比如AhMyth, 启动的后台服务为 `ahmyth.mine.king.ahmyth.MainService`. ")
     private String payloadService;
+
+    @Option(names = {"-b", "--boxName"}, description = "选择一个容器用来运行app，默认为`SpaceCore`，如果生成的app运行错误或者卡顿，可以尝试使用`NewBlackBox`。")
+    private String boxName = "SpaceCore";
 
     @Parameters(index = "0", description = "需要注入的apk文件. ", arity = "1")
     private String hackApkFilePath;
@@ -75,6 +79,14 @@ public class App implements Runnable
 
         getPayloadApkInfo();
 
+        if (Objects.equals(boxName, "NewBlackBox")){
+            Config.apkBox64FilePath = Config.workDir + "/libs/520ApkBoxNewBlackBox64.apk";
+            Config.apkBox32FilePath = Config.workDir + "/libs/520ApkBoxNewBlackBox32.apk";
+        }else {
+            Config.apkBox64FilePath = Config.workDir + "/libs/520ApkBoxSpaceCore64.apk";
+            Config.apkBox32FilePath = Config.workDir + "/libs/520ApkBoxSpaceCore32.apk";
+        }
+
         if (newPackageName != null) {
             Config.newPackageName = newPackageName;
         }
@@ -92,21 +104,30 @@ public class App implements Runnable
         if (clean) {
             cleanWorkDir();
         }
+
+        LogUtils.info(TAG, "所有工作已完成, 最终成果为: " + Config.buildApkFilePath + " . app的证书签名文件为: " + Config.apkKeyStoreFilePath +
+                " .  密码为: " + Config.apkSignerPass);
     }
 
     public static void cleanWorkDir(){
 
         try {
+            Thread.sleep(1000);
             FileUtils.deleteDirectory(new File(Config.workDir));
             LogUtils.info(TAG, "删除工作目录." + Config.workDir);
-        }catch (IOException e){
+        }catch (IOException | InterruptedException e){
             LogUtils.error(TAG, "删除工作目录失败." + Config.workDir);
             e.printStackTrace();
         }
     }
+
     public static void startHackApk(){
         LogUtils.info(TAG, "开始进行对被注入Apk进行包装.");
         HackApk hackApk = new HackApk();
+
+        if (!hackApk.generateKeyStore()){
+            LogUtils.warn(TAG, "无法生成新的证书文件，使用自带的证书文件，不影响, 继续下一步! ");
+        }
 
         if (hackApk.decodeApkFile()){
             LogUtils.info(TAG, "反编译模板Apk成功.");
@@ -144,20 +165,19 @@ public class App implements Runnable
         }
 
         if (hackApk.buildApkFile()){
-            LogUtils.info(TAG, "模板App重新编译成功.");
+            LogUtils.info(TAG, "新App重新编译成功.");
         }else {
-            LogUtils.error(TAG, "模板App重新编译失败, 无法进行下一步, 程序退出! ");
+            LogUtils.error(TAG, "新App重新编译失败, 无法进行下一步, 程序退出! ");
             System.exit(1);
         }
 
         if (hackApk.signerApk()){
-            LogUtils.info(TAG, "模板App签名成功.");
+            LogUtils.info(TAG, "新App签名成功.");
         }else {
-            LogUtils.error(TAG, "模板App签名失败, 无法进行下一步, 程序退出! ");
+            LogUtils.error(TAG, "新App签名失败, 无法进行下一步, 程序退出! ");
             System.exit(1);
         }
 
-        LogUtils.info(TAG, "所有工作已完成, 最终成果为: " + Config.buildApkFilePath);
     }
     public static void getSourceApkInfo(){
         GetSourceApkInfo GetSourceApkInfo = null;
@@ -180,6 +200,11 @@ public class App implements Runnable
             LogUtils.warn(TAG, "读取被注入Apk图标并保存时失败! 并不影响后续操作.");
         }
 
+        if (!GetSourceApkInfo.getApkSing()){
+            Config.apkSignerPass = "p@ssw0rd";
+            LogUtils.warn(TAG, "读取被注入Apk证书信息失败! 并不影响后续操作.");
+        }
+
         GetSourceApkInfo.closeApkFile();
 
         if (!GetSourceApkInfo.getApkArchName()){
@@ -199,7 +224,6 @@ public class App implements Runnable
             LogUtils.info(TAG, "反编译 Payload Apk 失败. 无法进行下一步, 程序退出! " + Config.payloadApkFilePath);
             System.exit(1);
         }
-
 
         if (! GetPayloadApkInfo.getApkMetaInfo()){
             LogUtils.info(TAG, "尝试读取 Payload Apk的信息失败. 无法进行下一步, 程序退出! " + Config.payloadApkDecodeDir);

