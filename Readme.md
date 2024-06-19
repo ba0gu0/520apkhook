@@ -16,6 +16,10 @@
 
 ## 版本升级
 
+* 2024-06-20
+  * 修复各种bug。
+  * 新增了改包模块，把payload apk的包名修改掉，去掉特征，避免被杀软识别。目前修改后效果不错，各安全管家、virustotal都不报毒。
+
 * 2024-05-21
   * 修复了520apkhook的相关问题（app中文名报错、apk签名被标记。）
 
@@ -48,7 +52,7 @@
 
 1. 下载Releases中打包好的jar包  
 
- * [a520ApkHook-1.2-jar-with-dependencies.jar](https://github.com/ba0gu0/520apkhook/releases/download/v1.2/a520ApkHook-1.1-jar-with-dependencies.jar)
+ * [a520ApkHook-1.2.1-jar-with-dependencies.jar](https://github.com/ba0gu0/520apkhook/releases/download/v1.2/a520ApkHook-1.2.1-jar-with-dependencies.jar)
 
 2. msfmsfvenom
 

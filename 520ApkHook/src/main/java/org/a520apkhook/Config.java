@@ -7,11 +7,15 @@ import java.util.*;
 
 import org.apache.commons.io.FileUtils;
 
+import static org.a520apkhook.CmdUtils.ExtractResource;
+
 public class Config {
 
     public static String LOGO;
     public static String apkToolFilePath;
     public static String apkSignerFilePath;
+    public static String aapt2FilePath;
+    public static String zipalignFilePath;
     public static String apkKeyStoreFilePath;
     public static String apkBox64FilePath;
     public static String apkBox32FilePath;
@@ -19,12 +23,12 @@ public class Config {
     public static boolean apkBoxUseOldSdk;
     public static String workDir;
     public static Boolean IsJar = false;
-    public static HashMap<String, String> apkMetaInfo = null;
+    public static ApkMetaInfo apkMetaInfo = null;
     public static String apkIconFilePath;
-    public static String apkAdaptiveIconFilePath;
     public static String apkArchType = "armV8";
     public static String hackApkFilePath;
     public static String payloadApkFilePath;
+    public static String byPassPayloadApkFilePath;
     public static String payloadApkDecodeDir;
     public static String payloadApkApplicationName;
     public static String payloadApkMainActivityName;
@@ -34,7 +38,8 @@ public class Config {
     public static String payloadApkDexZipFilePath;
     public static String payloadApkDexZipFilePass;
     public static String buildApkFilePath;
-    public static Locale LocaleLanguage = Locale.SIMPLIFIED_CHINESE;
+    public static String zipalignApkFilePath;
+    public static String signerApkFilePath;
     public static String assetsSourceApkFileName;
     public static String assetsClassesDexFileName;
     public static Boolean enableDaemonService = false;
@@ -64,6 +69,19 @@ public class Config {
             workDir = System.getProperty("user.dir") + "/workDir";
         }
 
+        String os = System.getProperty("os.name").toLowerCase();
+
+        if (os.contains("win")) {  // Windows
+            zipalignFilePath = workDir + "/libs/zipalign.exe";
+            aapt2FilePath = workDir + "/libs/aapt2.exe";
+        } else if (os.contains("mac")) {  // MacOS
+            zipalignFilePath = workDir + "/libs/zipalign.Mach-O";
+            aapt2FilePath = workDir + "/libs/aapt2.Mach-O";
+        } else {  // Linux
+            zipalignFilePath = workDir + "/libs/zipalign.ELF";
+            aapt2FilePath = workDir + "/libs/aapt2.ELF";
+        }
+
         apkToolFilePath = workDir + "/libs/apktool.jar";
         apkSignerFilePath = workDir + "/libs/apksigner.jar";
         apkKeyStoreFilePath = workDir + "/libs/Android.keystore";
@@ -71,6 +89,7 @@ public class Config {
         apkBox32FilePath = workDir + "/libs/520ApkBoxSpaceCore32.apk";
         apkBoxApkDecodeDir = workDir + "/apkBoxDecodeDir";
         payloadApkDecodeDir = workDir + "/payloadApkDecodeDir";
+        byPassPayloadApkFilePath = workDir + "/ByPassPayloadApk.apk";
 
         byte[] decodedBytes = Base64.getDecoder().decode("CgogICAgX19fX19fIF9fXyAgIF9fX18gICBfX18gICAgICAgICAgICBfXyAgICBfXyAgX18gICAgICAgICAgICAgICBfXyAgCiAgIC8gX19fXy98X18gXCAvIF9fIFwgLyAgIHwgICBfX19fICAgLyAvX18gLyAvIC8gL19fX18gICBfX19fICAgLyAvX18KICAvX19fIFwgIF9fLyAvLyAvIC8gLy8gL3wgfCAgLyBfXyBcIC8gLy9fLy8gL18vIC8vIF9fIFwgLyBfXyBcIC8gLy9fLwogX19fXy8gLyAvIF9fLy8gL18vIC8vIF9fXyB8IC8gL18vIC8vICw8ICAvIF9fICAvLyAvXy8gLy8gL18vIC8vICw8ICAgCi9fX19fXy8gL19fX18vXF9fX18vL18vICB8X3wvIC5fX18vL18vfF98L18vIC9fLyBcX19fXy8gXF9fX18vL18vfF98ICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgL18vICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAoK");
         LOGO = new String(decodedBytes);
@@ -89,94 +108,57 @@ public class Config {
 
     public static void initWorkDir() throws IOException {
 
-        // 创建一个 File 对象，使用文件路径字符串作为参数
-        File file64 = new File(apkBox64FilePath);
-        // 使用 getName() 方法获取文件名
-        String apkBox64FileName = file64.getName();
+//        LogUtils.info(TAG, apkBox64FilePath);
+//        System.exit(1);
 
-        // 创建一个 File 对象，使用文件路径字符串作为参数
-        File file32 = new File(apkBox32FilePath);
-        // 使用 getName() 方法获取文件名
-        String apkBox32FileName = file32.getName();
+        String aapt2FileName = new File(aapt2FilePath).getName();
 
+        String apkToolFileName = new File(apkToolFilePath).getName();
+
+        String zipalignFileName = new File(zipalignFilePath).getName();
+
+        String apkSignerFileName = new File(apkSignerFilePath).getName();
+
+        String apkKeyStoreFileName = new File(apkKeyStoreFilePath).getName();
+
+        String apkBox64FileName = new File(apkBox64FilePath).getName();
+
+        String apkBox32FileName = new File(apkBox32FilePath).getName();
 
         if (IsJar){
             LogUtils.info(TAG, "从Jar包中释放工具文件.");
-            InputStream apktoolInputStream = Config.class.getResourceAsStream("/jar/resources/apktool.jar");
-            InputStream apksignerInputStream = Config.class.getResourceAsStream("/jar/resources/apksigner.jar");
-            InputStream apkKeyStoreInputStream = Config.class.getResourceAsStream("/jar/resources/Android.keystore");
-            InputStream apkBox64InputStream = Config.class.getResourceAsStream("/jar/resources/" + apkBox64FileName);
-            InputStream apkBox32InputStream = Config.class.getResourceAsStream("/jar/resources/" + apkBox32FileName);
-
-            OutputStream apktoolOutputStream = new FileOutputStream(apkToolFilePath);
-            OutputStream apksignerOutputStream = new FileOutputStream(apkSignerFilePath);
-            OutputStream apkKeyStoreOutputStream = new FileOutputStream(apkKeyStoreFilePath);
-            OutputStream apkBox64OutputStream = new FileOutputStream(apkBox64FilePath);
-            OutputStream apkBox32OutputStream = new FileOutputStream(apkBox32FilePath);
-
-            int index = 0;// 当前读取的位数
-            byte[] bytes = new byte[1024];// 指定每次读取的位数，这里以1024为例
-            while ((index = apktoolInputStream.read(bytes)) != -1){
-                apktoolOutputStream.write(bytes, 0, index);
-            }
-            apktoolOutputStream.flush();
-            apktoolOutputStream.close();
-            apktoolInputStream.close();
+            ExtractResource("/jar/resources/" + apkToolFileName, apkToolFilePath);
             LogUtils.info(TAG, "已释放 apktool.jar .");
-
-            index = 0;// 当前读取的位数
-            bytes = new byte[1024];// 指定每次读取的位数，这里以1024为例
-            while ((index = apksignerInputStream.read(bytes)) != -1){
-                apksignerOutputStream.write(bytes, 0, index);
-            }
-            apksignerOutputStream.flush();
-            apksignerOutputStream.close();
-            apksignerInputStream.close();
+            ExtractResource("/jar/resources/" + apkSignerFileName, apkSignerFilePath);
             LogUtils.info(TAG, "已释放 apksigner.jar .");
-
-            index = 0;// 当前读取的位数
-            bytes = new byte[1024];// 指定每次读取的位数，这里以1024为例
-            while ((index = apkKeyStoreInputStream.read(bytes)) != -1){
-                apkKeyStoreOutputStream.write(bytes, 0, index);
-            }
-            apkKeyStoreOutputStream.flush();
-            apkKeyStoreOutputStream.close();
-            apkKeyStoreInputStream.close();
+            ExtractResource("/jar/resources/" + apkKeyStoreFileName, apkKeyStoreFilePath);
             LogUtils.info(TAG, "已释放 Android.keystore .");
-
-            index = 0;// 当前读取的位数
-            bytes = new byte[1024];// 指定每次读取的位数，这里以1024为例
-            while ((index = apkBox64InputStream.read(bytes)) != -1){
-                apkBox64OutputStream.write(bytes, 0, index);
-            }
-            apkBox64OutputStream.flush();
-            apkBox64OutputStream.close();
-            apkBox64InputStream.close();
-            LogUtils.info(TAG, "已释放 " + apkBox64FileName + " .");
-
-
-            index = 0;// 当前读取的位数
-            bytes = new byte[1024];// 指定每次读取的位数，这里以1024为例
-            while ((index = apkBox32InputStream.read(bytes)) != -1){
-                apkBox32OutputStream.write(bytes, 0, index);
-            }
-            apkBox32OutputStream.flush();
-            apkBox32OutputStream.close();
-            apkBox32InputStream.close();
+            ExtractResource("/jar/resources/aapt/" + aapt2FileName, aapt2FilePath);
+            LogUtils.info(TAG, "已释放 aapt .");
+            ExtractResource("/jar/resources/zipalign/"+ zipalignFileName, zipalignFilePath);
+            LogUtils.info(TAG, "已释放 zipalign .");
+            ExtractResource("/jar/resources/ApkBox/" + apkBox32FileName, apkBox32FilePath);
             LogUtils.info(TAG, "已释放 " + apkBox32FileName + " .");
+            ExtractResource("/jar/resources/ApkBox/" + apkBox64FileName, apkBox64FilePath);
+            LogUtils.info(TAG, "已释放 " + apkBox64FileName + " .");
         }else {
             LogUtils.debug(TAG, "从项目resources目录中文件中释放文件.");
             String homeDir = System.getProperty("user.dir");
-            FileUtils.copyFile(new File(homeDir + "/src/main/resources/apktool.jar"), new File(apkToolFilePath));
+            FileUtils.copyFile(new File(homeDir + "/src/main/resources/" + apkToolFileName), new File(apkToolFilePath));
             LogUtils.info(TAG, "已释放 apktool.jar .");
-            FileUtils.copyFile(new File(homeDir + "/src/main/resources/apksigner.jar"), new File(apkSignerFilePath));
+            FileUtils.copyFile(new File(homeDir + "/src/main/resources/" + apkSignerFileName), new File(apkSignerFilePath));
             LogUtils.info(TAG, "已释放 apksigner.jar .");
-            FileUtils.copyFile(new File(homeDir + "/src/main/resources/Android.keystore"), new File(apkKeyStoreFilePath));
+            FileUtils.copyFile(new File(homeDir + "/src/main/resources/" + apkKeyStoreFileName), new File(apkKeyStoreFilePath));
             LogUtils.info(TAG, "已释放 Android.keystore .");
-            FileUtils.copyFile(new File(homeDir + "/src/main/resources/" + apkBox64FileName), new File(apkBox64FilePath));
+            FileUtils.copyFile(new File(homeDir + "/src/main/resources/aapt/" + aapt2FileName), new File(aapt2FilePath));
+            LogUtils.info(TAG, "已释放 aapt .");
+            FileUtils.copyFile(new File(homeDir + "/src/main/resources/zipalign/"+ zipalignFileName), new File(zipalignFilePath));
+            LogUtils.info(TAG, "已释放 zipalign .");
+            FileUtils.copyFile(new File(homeDir + "/src/main/resources/ApkBox/" + apkBox64FileName), new File(apkBox64FilePath));
             LogUtils.info(TAG, "已释放 " + apkBox64FileName + " .");
-            FileUtils.copyFile(new File(homeDir + "/src/main/resources/" + apkBox32FileName), new File(apkBox32FilePath));
+            FileUtils.copyFile(new File(homeDir + "/src/main/resources/ApkBox/" + apkBox32FileName), new File(apkBox32FilePath));
             LogUtils.info(TAG, "已释放 " + apkBox32FileName + " .");
+
         }
     }
 

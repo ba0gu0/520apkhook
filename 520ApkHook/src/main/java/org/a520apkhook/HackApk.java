@@ -2,12 +2,8 @@ package org.a520apkhook;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
-import org.dom4j.io.XMLWriter;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
@@ -19,12 +15,7 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 
 import java.io.*;
-import java.lang.reflect.Method;
 import java.math.BigInteger;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.*;
@@ -32,11 +23,11 @@ import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
+
+import static org.a520apkhook.CmdUtils.*;
 
 public class HackApk {
-    private final String TAG = "HackApk";
+    private static final String TAG = "HackApk";
     private static final String ALLOWED_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
     HackApk () {
@@ -45,10 +36,10 @@ public class HackApk {
     public Boolean decodeApkFile (){
         if (Objects.equals(Config.apkArchType, "armV8")){
             LogUtils.info(TAG, "目标Apk支持64位, 使用apktool反编译模板Apk, " + Config.apkBox64FilePath);
-            return runJar(new File(Config.apkToolFilePath), new String[]{"d", Config.apkBox64FilePath, "-f", "-o", Config.apkBoxApkDecodeDir});
+            return RunCommand(new File(Config.apkToolFilePath), new String[]{"d", Config.apkBox64FilePath, "-f", "-o", Config.apkBoxApkDecodeDir});
         }else {
             LogUtils.info(TAG, "目标Apk仅支持32位, 使用apktool反编译模板Apk, " + Config.apkBox32FilePath);
-            return runJar(new File(Config.apkToolFilePath), new String[]{"d", Config.apkBox32FilePath, "-f", "-o", Config.apkBoxApkDecodeDir});
+            return RunCommand(new File(Config.apkToolFilePath), new String[]{"d", Config.apkBox32FilePath, "-f", "-o", Config.apkBoxApkDecodeDir});
         }
 
     }
@@ -98,7 +89,7 @@ public class HackApk {
             // 保存证书到密钥库中
             KeyStore keyStore = KeyStore.getInstance("PKCS12");
             keyStore.load(null, null);
-            keyStore.setKeyEntry("520ApkBox", keyPair.getPrivate(), Config.apkSignerPass.toCharArray(), new X509Certificate[]{newCert});
+            keyStore.setKeyEntry("Android", keyPair.getPrivate(), Config.apkSignerPass.toCharArray(), new X509Certificate[]{newCert});
 
             // 将 keystore 保存到文件中
             try (FileOutputStream fos = new FileOutputStream(Config.apkKeyStoreFilePath)) {
@@ -107,35 +98,29 @@ public class HackApk {
 
             LogUtils.info(TAG, "使用获取到的组织信息，生成新的证书文件。新的证书文件保存在: " + Config.apkKeyStoreFilePath + " .  证书密码为: " + Config.apkSignerPass);
         } catch (Exception e) {
-            e.printStackTrace();
+            LogUtils.warn(TAG, "无法生成新的证书: " + e.getMessage());
             return false;
         }
         return true;
     }
 
-        private static String generateRandomPassword(int length) {
-            SecureRandom random = new SecureRandom();
-            StringBuilder password = new StringBuilder(length);
-            for (int i = 0; i < length; i++) {
-                // 生成随机索引，从 ALLOWED_CHARACTERS 中获取字符
-                int randomIndex = random.nextInt(ALLOWED_CHARACTERS.length());
-                char randomChar = ALLOWED_CHARACTERS.charAt(randomIndex);
-                password.append(randomChar);
-            }
-            return password.toString();
+    private static String generateRandomPassword(int length) {
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            // 生成随机索引，从 ALLOWED_CHARACTERS 中获取字符
+            int randomIndex = random.nextInt(ALLOWED_CHARACTERS.length());
+            char randomChar = ALLOWED_CHARACTERS.charAt(randomIndex);
+            password.append(randomChar);
         }
+        return password.toString();
+    }
 
     public Boolean changeAndroidManifest() {
         LogUtils.info(TAG, "解析并修改模板Apk的AndroidManifest.xml文件. ");
         File xmlFile = new File(Config.apkBoxApkDecodeDir + "/AndroidManifest.xml");
-        SAXReader xmlReader = new SAXReader();
-        Document document;
-        try (InputStream inputStream = new FileInputStream(xmlFile);
-             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-            xmlReader.setEncoding(StandardCharsets.UTF_8.name());
-            document = xmlReader.read(inputStreamReader);
-        } catch (IOException | DocumentException e) {
-            e.printStackTrace();
+        Document document = readXmlFile(xmlFile);
+        if (document == null){
             return false;
         }
         Element rootElement = document.getRootElement();
@@ -149,8 +134,8 @@ public class HackApk {
             }
 
             if(metaDataElement.attribute("name").getValue().equals("HackAppPackageName")){
-               metaDataElement.addAttribute("value", Config.apkMetaInfo.get("AppPackageName"));
-                LogUtils.info(TAG, "设置包装器的启动包名. " + Config.apkMetaInfo.get("AppPackageName"));
+               metaDataElement.addAttribute("value", Config.apkMetaInfo.getAppPackageName());
+                LogUtils.info(TAG, "设置包装器的启动包名. " + Config.apkMetaInfo.getAppPackageName());
             }
 
             if(metaDataElement.attribute("name").getValue().equals("EnableDaemonService")){
@@ -201,92 +186,111 @@ public class HackApk {
                 }
             }
 
-
             LogUtils.debug(TAG, metaDataElement.toString());
         }
 
         // 读取payload apk中的信息，追加到 apkbox 中
         LogUtils.info(TAG, "将payload apk中的 AndroidManifest-new.xml 追加到apkbox的 AndroidManifest.xml中.");
-        File newXmlFile = new File(Config.payloadApkNewManifestFile);
-        SAXReader newXmlReader = new SAXReader();
-        Document newDocument;
-        try (InputStream inputStream = new FileInputStream(newXmlFile);
-             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-            newXmlReader.setEncoding(StandardCharsets.UTF_8.name());
-            newDocument = newXmlReader.read(inputStreamReader);
-        } catch (IOException | DocumentException e) {
-            e.printStackTrace();
-            return false;
-        }
-        Element newRootElement = newDocument.getRootElement();
+        Document payloadApkDocument = readXmlFile(new File(Config.payloadApkNewManifestFile));
+        Element payloadApkRootElement = payloadApkDocument.getRootElement();
 
-        for (Element tempElement : newRootElement.elements()){
+        for (Element tempElement : payloadApkRootElement.elements()){
             rootElement.element("application").add(tempElement.createCopy());
         }
+
         LogUtils.debug(TAG, rootElement.element("application").toString());
 
         LogUtils.debug(TAG, rootElement.element("application").elements("meta-data").toString());
-        try (OutputStream outputStream = new FileOutputStream(xmlFile);
-             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-            XMLWriter writer = new XMLWriter(outputStreamWriter);
-            writer.write(document);
-            writer.close();
-            LogUtils.info(TAG, "写入模板App的AndroidManifest.xml文件成功.");
-        } catch (IOException e) {
-            LogUtils.error(TAG, "写入模板App的AndroidManifest.xml文件失败.");
-            e.printStackTrace();
+
+        if (!writeXmlFile(document, xmlFile)){
             return false;
-        }
+        };
 
-        LogUtils.info(TAG, "解析并修改模板App的string.xml文件. ");
-        xmlFile = new File(Config.apkBoxApkDecodeDir + "/res/values/strings.xml");
-        xmlReader = new SAXReader();
-        try (InputStream inputStream = new FileInputStream(xmlFile);
-             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-            xmlReader.setEncoding(StandardCharsets.UTF_8.name());
-            document = xmlReader.read(inputStreamReader);
-        } catch (IOException | DocumentException e) {
-            e.printStackTrace();
-            return false;
-        }
-        rootElement = document.getRootElement();
+        return true;
+    }
 
+    public boolean setApkBoxAppName() {
+        LogUtils.info(TAG, "解析并修改模板App的string.xml文件.");
 
-        List<Element> stringElements = rootElement.elements("string");
-        for (Element stringElement : stringElements){
-            if(stringElement.attribute("name").getValue().equals("app_name")){
-                stringElement.setText(Config.apkMetaInfo.get("AppName"));
-                LogUtils.info(TAG, "设置模板App显示的名字. " + Config.apkMetaInfo.get("AppName"));
+        for (ApkMetaInfo.AppName appName : Config.apkMetaInfo.getAppNames()) {
+            if ("default".equals(appName.getLanguage())) {
+                File xmlFile = new File(Config.apkBoxApkDecodeDir + "/res/values/strings.xml");
+                updateAppNameInXml(xmlFile, appName.getName());
+                LogUtils.info(TAG, "设置模板App默认显示的名字: " + appName.getName());
+            } else {
+                String language = appName.getLanguage();
+                File languageDir = new File(Config.apkBoxApkDecodeDir + "/res/values-" + language);
+                if (!languageDir.exists()) {
+                    if (!languageDir.mkdirs()) {
+                        LogUtils.warn(TAG, "创建目录失败: " + languageDir.getPath());
+                        return false;
+                    }
+                }
+
+                File xmlFile = new File(languageDir, "strings.xml");
+                if (!xmlFile.exists()) {
+                    try {
+                        if (!xmlFile.createNewFile()) {
+                            LogUtils.warn(TAG, "创建文件失败: " + xmlFile.getPath());
+                            return false;
+                        }
+                        // 初始化空的 XML 文件
+                        Document document = org.dom4j.DocumentHelper.createDocument();
+                        document.addElement("resources");
+                        writeXmlFile(document, xmlFile);
+                    } catch (IOException e) {
+                        LogUtils.warn(TAG, "创建文件失败: " + e.getMessage());
+                        return false;
+                    }
+                }
+
+                updateAppNameInXml(xmlFile, appName.getName());
+                LogUtils.info(TAG, "设置 " + language + " 语言的App显示的名字: " + appName.getName());
             }
         }
 
-        LogUtils.debug(TAG, rootElement.elements("string").toString());
-        try (OutputStream outputStream = new FileOutputStream(xmlFile);
-             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-            XMLWriter writer = new XMLWriter(outputStreamWriter);
-            writer.write(document);
-            writer.close();
-            LogUtils.info(TAG, "写入模板App的string.xml文件成功.");
-        } catch (IOException e) {
-            LogUtils.error(TAG, "写入模板App的string.xml文件失败.");
-            e.printStackTrace();
-            return false;
+        return true;
+    }
+    public static void updateAppNameInXml(File xmlFile, String appName) {
+        Document document = readXmlFile(xmlFile);
+        if (document == null) {
+            return;
         }
 
+        Element rootElement = document.getRootElement();
+        List<Element> stringElements = rootElement.elements("string");
+        boolean found = false;
+
+        for (Element stringElement : stringElements) {
+            if (stringElement.attribute("name").getValue().equals("app_name")) {
+                stringElement.setText(appName);
+                found = true;
+                break;
+            }
+        }
+
+        if (!found) {
+            Element newStringElement = rootElement.addElement("string");
+            newStringElement.addAttribute("name", "app_name");
+            newStringElement.setText(appName);
+        }
+
+        writeXmlFile(document, xmlFile);
+    }
+    public boolean fixValuesV31Colors(){
         LogUtils.info(TAG, "修复模板App的values-v31/colors.xml文件. ");
-        xmlFile = new File(Config.apkBoxApkDecodeDir + "/res/values-v31/colors.xml");
 
         Path colorXmlPath = Paths.get(Config.apkBoxApkDecodeDir + "/res/values-v31/colors.xml");
 
         try {
-            replaceFileContent(colorXmlPath, "@android", "@*android");
+            ReplaceFileContent(colorXmlPath, "@android", "@*android");
         }catch (IOException e) {
             LogUtils.info(TAG, "修复模板App的values-v31/colors.xml文件失败. ");
             return false;
         }
         LogUtils.info(TAG, "修复模板App的values-v31/colors.xml文件成功. ");
 
-        return true;
+        return  true;
     }
 
     public void changeApktoolYaml() throws IOException {
@@ -295,21 +299,22 @@ public class HackApk {
         Path yamlPath = Paths.get(Config.apkBoxApkDecodeDir + "/apktool.yml");
 
         if (Config.apkBoxUseOldSdk){
-            replaceFileContent(yamlPath, "minSdkVersion: '\\d+'", String.format("minSdkVersion: '%s'", 16));
-            replaceFileContent(yamlPath, "targetSdkVersion: '\\d+'", String.format("targetSdkVersion: '%s'", 22));
+            ReplaceFileContent(yamlPath, "minSdkVersion: \\d+", String.format("minSdkVersion: %s", 16));
+            ReplaceFileContent(yamlPath, "targetSdkVersion: \\d+", String.format("targetSdkVersion: %s", 22));
         }else {
-            replaceFileContent(yamlPath, "minSdkVersion: '\\d+'", String.format("minSdkVersion: '%s'", Config.apkMetaInfo.get("AppMinSdkVersion")));
-            replaceFileContent(yamlPath, "targetSdkVersion: '\\d+'", String.format("targetSdkVersion: '%s'", Config.apkMetaInfo.get("AppTargetSdkVersion")));
+            ReplaceFileContent(yamlPath, "minSdkVersion: \\d+", String.format("minSdkVersion: %s", Config.apkMetaInfo.getAppMinSdkVersion()));
+            ReplaceFileContent(yamlPath, "targetSdkVersion: \\d+", String.format("targetSdkVersion: %s", Config.apkMetaInfo.getAppTargetSdkVersion()));
         }
-        replaceFileContent(yamlPath, "versionName: '.*?'", String.format("versionName: '%s'", Config.apkMetaInfo.get("AppVersionName")));
-        replaceFileContent(yamlPath, "versionCode: '.*?'", String.format("versionCode: '%s'", Config.apkMetaInfo.get("AppVersionCode")));
+        ReplaceFileContent(yamlPath, "versionName: [\\d.]+", String.format("versionName: %s", Config.apkMetaInfo.getAppVersionName()));
+        ReplaceFileContent(yamlPath, "versionCode: [\\d.]+", String.format("versionCode: %s", Config.apkMetaInfo.getAppVersionCode()));
 
-        LogUtils.info(TAG, "修改模板App的minSdkVersion、targetSdkVersion、versionName、versionCode信息. ");
+        LogUtils.info(TAG, String.format("修改模板App的minSdkVersion: %s、targetSdkVersion: %s、versionName: %s、versionCode: %s 信息. ", Config.apkMetaInfo.getAppMinSdkVersion(), Config.apkMetaInfo.getAppTargetSdkVersion(), Config.apkMetaInfo.getAppVersionName(), Config.apkMetaInfo.getAppVersionCode()));
 
         LogUtils.info(TAG, "修改模板App的apktool.yml文件成功. ");
 
     }
-    public void changePackageName() throws IOException {
+
+    public void changeApkBoxPackageName() throws IOException {
 
         if (Objects.equals(Config.oldPackageName, Config.newPackageName)) {
             LogUtils.info(TAG, "PackageName没有发生变化, 直接返回.");
@@ -326,22 +331,29 @@ public class HackApk {
 
         File oldFileDir = new File(oldSmaliPath);
         File newFileDir = new File(newSmaliPath);
-        LogUtils.debug(TAG, String.valueOf(newFileDir.exists()));
+
+//        LogUtils.debug(TAG, String.valueOf(newFileDir.exists()));
+
         if (!newFileDir.exists()){
-            newFileDir.mkdirs();
-            LogUtils.info(TAG, "创建新的smali目录: " + newSmaliPath);
+            if(newFileDir.mkdirs()){
+                LogUtils.info(TAG, "成功创建新的smali目录: " + newSmaliPath);
+            }else {
+                LogUtils.warn(TAG, "目录创建失败: " + newSmaliPath);
+                throw new IOException("目录创建失败: " + newSmaliPath);
+            }
         }
+
         FileUtils.copyDirectory(oldFileDir, newFileDir);
         FileUtils.deleteDirectory(oldFileDir);
         LogUtils.info(TAG, "复制原始smali文件到新的smali目录中.");
 
         List<File> fileList = (List<File>) FileUtils.listFiles(newFileDir,null,false);
         for (File file : fileList){
-            replaceFileContent(Paths.get(file.toString()), oldSmaliPackageName, newSmaliPackageName);
-            replaceFileContent(Paths.get(file.toString()), Config.oldPackageName, Config.newPackageName);
+            ReplaceFileContent(Paths.get(file.toString()), oldSmaliPackageName, newSmaliPackageName);
+            ReplaceFileContent(Paths.get(file.toString()), Config.oldPackageName, Config.newPackageName);
             LogUtils.info(TAG, String.format("已修改smali文件: %s, 替换 %s 为 %s , 替换 %s 为 %s .", file.toString(), oldSmaliPackageName, newSmaliPackageName, Config.oldPackageName, Config.newPackageName));
         }
-        replaceFileContent(Paths.get(Config.apkBoxApkDecodeDir + "/AndroidManifest.xml"), Config.oldPackageName, Config.newPackageName);
+        ReplaceFileContent(Paths.get(Config.apkBoxApkDecodeDir + "/AndroidManifest.xml"), Config.oldPackageName, Config.newPackageName);
         LogUtils.info(TAG, String.format("已修改AndroidManifest.xml文件. 替换 %s 为 %s ", Config.oldPackageName, Config.newPackageName));
     }
 
@@ -358,9 +370,7 @@ public class HackApk {
             FileUtils.delete(new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher.png"));
             LogUtils.info(TAG, "已清空模板App中的 mipmap-xxxhdpi 文件夹.");
             FileUtils.copyFile(new File(Config.apkIconFilePath), new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher." + FilenameUtils.getExtension(Config.apkIconFilePath)));
-//        if (!Objects.equals(Config.apkAdaptiveIconFilePath, "")){
-//            FileUtils.copyFile(new File(Config.apkAdaptiveIconFilePath), new File(Config.apkBoxApkDecodeDir + "/res/mipmap-xxxhdpi/ic_launcher_foreground." + FilenameUtils.getExtension(Config.apkIconFilePath)));
-//        }
+
             LogUtils.info(TAG, "重新向模板App中的 mipmap-xxxhdpi 文件夹复制图标文件.");
         }
 
@@ -376,89 +386,22 @@ public class HackApk {
         LogUtils.info(TAG, "正在进行重新编译模板App.");
         Config.buildApkFilePath = System.getProperty("user.dir") + "/520ApkHook.apk";
 
-        return runJar(new File(Config.apkToolFilePath), new String[]{"b", "-f", "-o", Config.buildApkFilePath, Config.apkBoxApkDecodeDir});
+        return RunCommand(new File(Config.apkToolFilePath), new String[]{"b", "-f", "-o", Config.buildApkFilePath, Config.apkBoxApkDecodeDir});
+    }
+
+    public Boolean zipalignApkFile(){
+        LogUtils.info(TAG, "正在进行重新编译模板App.");
+        Config.zipalignApkFilePath = System.getProperty("user.dir") + "/520ApkHook.zipalign.apk";
+
+        return RunCommand(new File(Config.zipalignFilePath), new String[]{"-f", "-p" ,"4", Config.buildApkFilePath, Config.zipalignApkFilePath});
     }
 
     public Boolean signerApk(){
         LogUtils.info(TAG, "正在对模板App重新进行签名.");
 
-        return runJar(new File(Config.apkSignerFilePath), new String[]{"sign", "--ks", Config.apkKeyStoreFilePath, "-ks-pass", "pass:" + Config.apkSignerPass, Config.buildApkFilePath});
+        Config.signerApkFilePath = System.getProperty("user.dir") + "/520ApkHook.zipalign.signer.apk";
+
+        return RunCommand(new File(Config.apkSignerFilePath), new String[]{"sign", "--v1-signing-enabled", "true", "--v2-signing-enabled", "true", "--v3-signing-enabled", "true", "--v4-signing-enabled", "true", "--ks", Config.apkKeyStoreFilePath, "--ks-pass", "pass:" + Config.apkSignerPass, "--ks-key-alias", "Android", "--key-pass", "pass:" + Config.apkSignerPass, "--in", Config.zipalignApkFilePath, "--out", Config.signerApkFilePath});
     }
 
-    public Boolean runJar(File file, String[] args) {
-
-        String[] fullCommand = (String[]) ArrayUtils.addAll(new String[]{"java", "-jar", file.getAbsolutePath()}, args);
-
-        LogUtils.info(TAG, "进行jar执行: " + String.join(" ", fullCommand));
-
-        if (Config.IsJar) {
-            final String mainClass;
-            final JarFile jarFile;
-            try {
-                jarFile = new JarFile(file);
-                try {
-                    final Manifest manifest = jarFile.getManifest();
-                    mainClass = manifest.getMainAttributes().getValue("Main-Class");
-                } finally {
-                    jarFile.close();
-                }
-                final URLClassLoader child = new URLClassLoader(new URL[]{file.toURI().toURL()}, this.getClass().getClassLoader());
-                final Class<?> classToLoad = Class.forName(mainClass, true, child);
-                final Method method = classToLoad.getDeclaredMethod("main", String[].class);
-                final Object[] arguments = {args};
-                method.invoke(null, arguments);
-            }  catch (Exception e) {
-                // 反射调用失败，尝试以命令方式执行
-                LogUtils.warn(TAG, "反射调用失败，切换为直接命令执行。" + e.getMessage());
-                return runCommand(fullCommand);
-            }
-        } else {
-            return runCommand(fullCommand);
-        }
-        return true;
-    }
-
-    private Boolean runCommand(String[] fullCommand) {
-        try {
-            Process pid = Runtime.getRuntime().exec(fullCommand);
-            // 获取外部程序标准输出流
-            new Thread(new OutputHandlerRunnable(pid.getInputStream())).start();
-            // 获取外部程序标准错误流
-            new Thread(new OutputHandlerRunnable(pid.getErrorStream())).start();
-            pid.waitFor();
-            return true;
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private void replaceFileContent(Path filePath, String regex, String repl) throws IOException {
-        String readFileData = Files.readString(filePath, StandardCharsets.UTF_8);
-        readFileData = readFileData.replaceAll(regex, repl);
-
-        try (BufferedWriter byteWrite = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8)) {
-            byteWrite.write(readFileData);
-        }
-    }
-
-
-    private static class OutputHandlerRunnable implements Runnable {
-        private final InputStream in;
-        public OutputHandlerRunnable(InputStream in) {
-            this.in = in;
-        }
-
-        @Override
-        public void run() {
-            try (BufferedReader bufr = new BufferedReader(new InputStreamReader(this.in))) {
-                String line = null;
-                while ((line = bufr.readLine()) != null) {
-                    System.out.println(line);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
 }

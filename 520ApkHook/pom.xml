@@ -3,7 +3,7 @@
 
     <groupId>org.example</groupId>
     <artifactId>a520ApkHook</artifactId>
-    <version>1.2</version>
+    <version>1.2.1</version>
 
     <name>a520ApkHook</name>
     <url>https://github.com/ba0gu0/520apkhook</url>
@@ -79,11 +79,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>net.dongliu</groupId>
-            <artifactId>apk-parser</artifactId>
-            <version>2.6.10</version>
-        </dependency>
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>2.11.0</version>
@@ -117,6 +112,11 @@
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcpkix-jdk18on</artifactId>
             <version>1.78.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.icu</groupId>
+            <artifactId>icu4j</artifactId>
+            <version>75.1</version>
         </dependency>
     </dependencies>
 </project>

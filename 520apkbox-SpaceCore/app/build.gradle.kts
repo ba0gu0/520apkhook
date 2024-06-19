@@ -3,6 +3,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        create("release") {
+            storeFile = file("../Android.keystore")
+            storePassword = "p@ssw0rd"
+            keyAlias = "Android"
+            keyPassword = "p@ssw0rd"
+        }
+    }
     namespace = "com.android.a520apkbox"
     compileSdk = 34
 
@@ -23,6 +31,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
 

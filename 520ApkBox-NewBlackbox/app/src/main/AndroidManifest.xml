@@ -28,7 +28,7 @@
             android:value="" />
         <meta-data
             android:name="HackAppPackageName"
-            android:value="com.ss.android.ugc.aweme" />
+            android:value="com.aefyr.sai" />
         <meta-data
             android:name="EnableDaemonService"
             android:value="true" />
