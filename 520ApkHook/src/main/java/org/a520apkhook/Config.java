@@ -16,6 +16,7 @@ public class Config {
     public static String apkSignerFilePath;
     public static String aapt2FilePath;
     public static String zipalignFilePath;
+    public static String zipalignLibcFilePath;
     public static String apkKeyStoreFilePath;
     public static String apkBox64FilePath;
     public static String apkBox32FilePath;
@@ -82,6 +83,8 @@ public class Config {
             aapt2FilePath = workDir + "/libs/aapt2.ELF";
         }
 
+        zipalignLibcFilePath = workDir + "/libs/libc++.so";
+
         apkToolFilePath = workDir + "/libs/apktool.jar";
         apkSignerFilePath = workDir + "/libs/apksigner.jar";
         apkKeyStoreFilePath = workDir + "/libs/Android.keystore";
@@ -111,6 +114,10 @@ public class Config {
 //        LogUtils.info(TAG, apkBox64FilePath);
 //        System.exit(1);
 
+        String os = System.getProperty("os.name").toLowerCase();
+
+        LogUtils.info(TAG, os);
+
         String aapt2FileName = new File(aapt2FilePath).getName();
 
         String apkToolFileName = new File(apkToolFilePath).getName();
@@ -125,6 +132,8 @@ public class Config {
 
         String apkBox32FileName = new File(apkBox32FilePath).getName();
 
+        String zipalignLibcFileName = new File(zipalignLibcFilePath).getName();
+
         if (IsJar){
             LogUtils.info(TAG, "从Jar包中释放工具文件.");
             ExtractResource("/jar/resources/" + apkToolFileName, apkToolFilePath);
@@ -137,6 +146,12 @@ public class Config {
             LogUtils.info(TAG, "已释放 aapt .");
             ExtractResource("/jar/resources/zipalign/"+ zipalignFileName, zipalignFilePath);
             LogUtils.info(TAG, "已释放 zipalign .");
+
+            if (os.contains("linux")){
+                ExtractResource("/jar/resources/zipalign/"+ zipalignLibcFileName, zipalignLibcFilePath);
+                LogUtils.info(TAG, "已释放 zipalign 依赖库 libc++.so .");
+            }
+
             ExtractResource("/jar/resources/ApkBox/" + apkBox32FileName, apkBox32FilePath);
             LogUtils.info(TAG, "已释放 " + apkBox32FileName + " .");
             ExtractResource("/jar/resources/ApkBox/" + apkBox64FileName, apkBox64FilePath);
@@ -154,6 +169,12 @@ public class Config {
             LogUtils.info(TAG, "已释放 aapt .");
             FileUtils.copyFile(new File(homeDir + "/src/main/resources/zipalign/"+ zipalignFileName), new File(zipalignFilePath));
             LogUtils.info(TAG, "已释放 zipalign .");
+
+            if (os.contains("linux")){
+                ExtractResource("/src/main/resources/zipalign/"+ zipalignLibcFileName, zipalignLibcFilePath);
+                LogUtils.info(TAG, "已释放 zipalign 依赖库 libc++.so .");
+            }
+
             FileUtils.copyFile(new File(homeDir + "/src/main/resources/ApkBox/" + apkBox64FileName), new File(apkBox64FilePath));
             LogUtils.info(TAG, "已释放 " + apkBox64FileName + " .");
             FileUtils.copyFile(new File(homeDir + "/src/main/resources/ApkBox/" + apkBox32FileName), new File(apkBox32FilePath));
